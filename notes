@@ -1,0 +1,11 @@
+1. Penyesuaian fitur untuk karyawan hire yang sudah diterima dipindahkan ketabel baru di dashboard di atas kandidat ditolak
+2. Penyesuaian pengiriman pesan whatsapp atau email secara serentak ketika kandidat sudah sesuai kriteria
+3. penyesuaian tata letak mode mobile
+4. API login google
+5. (Optional) penggunaan google auth untuk keamanan data user
+6. Penyesuaian UI interaktif
+7. Riwayat data kandidat gagal tambahkan hapus semua dan kotak centang pilih delete
+8. Export data kandidat yang sudah di hire berupa excel dan seusai tabel 
+9. Pengaturan Persyaratan / Pertanyaan di persiapan lamaran ada fitur memilih satu pilihan
+10.Tambahan ucapan selamat bagi user yang sudah sampai Hire ditampilan user
+11.Tambahan fitur profile bisa setting ulang nama dan password untuk HRD
