@@ -1,6 +1,6 @@
 <div class="max-w-7xl mx-auto py-4 sm:py-8 space-y-8">
     <!-- Header Block with premium styling exactly matching activity logs -->
-    <div class="bg-gradient-to-r from-slate-900 via-slate-800 to-red-950 p-6 rounded-3xl border border-slate-700/50 shadow-2xl relative overflow-hidden">
+    <div class="bg-gradient-to-r from-slate-900 via-slate-800 to-red-950 p-6 rounded-3xl border border-slate-700/50 shadow-2xl relative overflow-hidden flex-shrink-0">
         <!-- Background Glow -->
         <div class="absolute -right-24 -top-24 w-52 h-52 bg-red-500/20 rounded-full blur-3xl"></div>
         <div class="absolute -left-24 -bottom-24 w-52 h-52 bg-slate-500/20 rounded-full blur-3xl"></div>
@@ -18,8 +18,8 @@
                 <h1 class="text-2xl md:text-3xl font-extrabold text-white tracking-tight">
                     Analitik Rekrutmen & Ringkasan ATS
                 </h1>
-                <p class="text-slate-300 text-sm max-w-2xl leading-relaxed">
-                    Ringkasan data statistik funnel rekrutmen, tingkat penerimaan, dan performa kandidat secara menyeluruh. Terintegrasi secara real-time.
+                <p class="text-slate-300 text-sm max-w-2xl">
+                    Pusat pemantauan kinerja proses rekrutmen dan analisis rasio penerimaan. Pantau data konversi funnel dari tahap administrasi hingga hired secara mendalam guna mengoptimalkan strategi rekrutmen organisasi Anda.
                 </p>
             </div>
 
