@@ -59,36 +59,38 @@
         </div>
         
         <nav class="flex-1 py-2 space-y-0.5 overflow-y-auto" :class="desktopSidebarOpen ? 'px-4' : 'px-4 md:px-2'">
+            <!-- Dashboard Link -->
             <a href="{{ route('hrd.overview') }}" title="Dashboard"
-               class="group flex items-center py-2 rounded-xl transition-all duration-300 hover:translate-x-1.5 hover:shadow-md {{ request()->routeIs('hrd.overview') ? 'bg-gradient-to-r from-red-50/80 to-red-100/50 border-l-4 border-red-500 text-red-600 font-semibold shadow-sm' : 'text-slate-600 hover:bg-red-50/50 hover:text-red-500 border-l-4 border-transparent' }}"
+               class="group flex items-center py-2 rounded-xl transition-all duration-300 hover:translate-x-1 hover:shadow-sm {{ request()->routeIs('hrd.overview') ? 'bg-gradient-to-r from-red-50/80 to-red-100/50 border-l-4 border-red-500 text-red-600 font-semibold shadow-sm' : 'text-slate-600 hover:bg-red-50/50 hover:text-red-500 border-l-4 border-transparent font-semibold' }}"
                :class="desktopSidebarOpen ? 'px-4 gap-3' : 'px-4 md:px-0 md:justify-center'">
                 <svg class="w-5 h-5 shrink-0 transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3 {{ request()->routeIs('hrd.overview') ? 'text-red-500' : 'text-slate-400' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                 </svg>
-                <span :class="desktopSidebarOpen ? '' : 'md:hidden'" class="truncate font-medium">Dashboard</span>
+                <span :class="desktopSidebarOpen ? '' : 'md:hidden'" class="truncate font-semibold text-sm">Dashboard</span>
             </a>
 
+            <!-- Tambah Persyaratan Link -->
             <a href="{{ route('hrd.requirements') ?? '#' }}" title="Tambah Persyaratan"
-               class="group flex items-center py-2 rounded-xl transition-all duration-300 hover:translate-x-1.5 hover:shadow-md {{ request()->routeIs('hrd.requirements') ? 'bg-gradient-to-r from-red-50/80 to-red-100/50 border-l-4 border-red-500 text-red-600 font-semibold shadow-sm' : 'text-slate-600 hover:bg-red-50/50 hover:text-red-500 border-l-4 border-transparent' }}"
+               class="group flex items-center py-2 rounded-xl transition-all duration-300 hover:translate-x-1 hover:shadow-sm {{ request()->routeIs('hrd.requirements') ? 'bg-gradient-to-r from-red-50/80 to-red-100/50 border-l-4 border-red-500 text-red-600 font-semibold shadow-sm' : 'text-slate-600 hover:bg-red-50/50 hover:text-red-500 border-l-4 border-transparent font-semibold' }}"
                :class="desktopSidebarOpen ? 'px-4 gap-3' : 'px-4 md:px-0 md:justify-center'">
                 <svg class="w-5 h-5 shrink-0 transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3 {{ request()->routeIs('hrd.requirements') ? 'text-red-500' : 'text-slate-400' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
-                <span :class="desktopSidebarOpen ? '' : 'md:hidden'" class="truncate font-medium">Tambah Persyaratan</span>
+                <span :class="desktopSidebarOpen ? '' : 'md:hidden'" class="truncate font-semibold text-sm">Tambah Persyaratan</span>
             </a>
 
             <!-- Proses Kandidat Dropdown Menu -->
             <div x-data="{ open: {{ (request()->routeIs('hrd.dashboard') || request()->routeIs('hrd.process')) ? 'true' : 'false' }} }" class="space-y-0.5">
                 <button @click="open = !open" title="Proses Kandidat"
-                   class="group flex items-center justify-between w-full py-2.5 rounded-xl transition-all duration-300 hover:translate-x-1.5 hover:shadow-md {{ (request()->routeIs('hrd.dashboard') || request()->routeIs('hrd.process')) ? 'bg-gradient-to-r from-red-50/40 to-red-100/20 border-l-4 border-red-400 text-red-600 font-semibold' : 'text-slate-600 hover:bg-red-50/50 hover:text-red-500 border-l-4 border-transparent' }}"
+                   class="group flex items-center justify-between w-full py-2.5 rounded-xl transition-all duration-300 hover:translate-x-1 hover:shadow-sm {{ (request()->routeIs('hrd.dashboard') || request()->routeIs('hrd.process')) ? 'bg-gradient-to-r from-red-50/40 to-red-100/20 border-l-4 border-red-400 text-red-600 font-semibold' : 'text-slate-600 hover:bg-red-50/50 hover:text-red-500 border-l-4 border-transparent font-semibold' }}"
                    :class="desktopSidebarOpen ? 'px-4' : 'px-4 md:px-0 md:justify-center'">
                     <div class="flex items-center gap-3">
                         <svg class="w-5 h-5 shrink-0 transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3 {{ (request()->routeIs('hrd.dashboard') || request()->routeIs('hrd.process')) ? 'text-red-500' : 'text-slate-400' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 11-4 0z" />
                         </svg>
-                        <span :class="desktopSidebarOpen ? '' : 'md:hidden'" class="truncate font-medium">Proses Kandidat</span>
+                        <span :class="desktopSidebarOpen ? '' : 'md:hidden'" class="truncate font-semibold text-sm">Proses Kandidat</span>
                     </div>
-                    <svg :class="[desktopSidebarOpen ? '' : 'md:hidden', open ? 'rotate-180' : '']" class="w-4 h-4 text-slate-400 transition-transform duration-300 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg :class="[desktopSidebarOpen ? '' : 'md:hidden', open ? 'rotate-180' : '']" class="w-4 h-4 text-slate-400 shrink-0 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                     </svg>
                 </button>
@@ -97,8 +99,8 @@
                 <div x-show="open" x-collapse x-transition.duration.300ms class="space-y-0.5 pl-4" :class="desktopSidebarOpen ? 'block' : 'md:hidden'" style="display: none;">
                     <!-- Kanban Board / Dashboard -->
                     <a href="{{ route('hrd.dashboard') }}"
-                       class="group flex items-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-300 {{ request()->routeIs('hrd.dashboard') ? 'bg-red-500 text-white font-bold shadow-md shadow-red-500/20 hover:scale-[1.03]' : 'text-slate-500 hover:bg-red-50/30 hover:text-red-500' }}">
-                        <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                       class="group flex items-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-300 hover:translate-x-1 {{ request()->routeIs('hrd.dashboard') ? 'bg-red-500 text-white font-bold shadow-md shadow-red-500/20' : 'text-slate-500 hover:bg-red-50/30 hover:text-red-500 font-semibold' }}">
+                        <svg class="w-4 h-4 shrink-0 transition-transform duration-300 group-hover:scale-110" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2" />
                         </svg>
                         <span>Papan Kanban</span>
@@ -106,50 +108,52 @@
 
                     <!-- Administrasi -->
                     <a href="{{ route('hrd.process', 'administrasi') }}"
-                       class="group flex items-center gap-2.5 py-2 px-3 rounded-lg text-sm transition-all duration-300 {{ request()->is('hrd/process/administrasi') ? 'bg-blue-600 text-white font-bold shadow-lg shadow-blue-500/20 hover:scale-[1.03]' : 'text-slate-500 hover:bg-blue-50/40 hover:text-blue-600' }}">
-                        <div class="h-2 w-2 rounded-full {{ request()->is('hrd/process/administrasi') ? 'bg-white' : 'bg-blue-400' }}"></div>
+                       class="group flex items-center gap-2.5 py-2 px-3 rounded-lg text-sm transition-all duration-300 hover:translate-x-1 {{ request()->is('hrd/process/administrasi') ? 'bg-blue-600 text-white font-bold shadow-lg shadow-blue-500/20' : 'text-slate-500 hover:bg-blue-50/40 hover:text-blue-600 font-semibold' }}">
+                        <div class="h-2 w-2 rounded-full transition-transform duration-300 group-hover:scale-125 {{ request()->is('hrd/process/administrasi') ? 'bg-white' : 'bg-blue-400' }}"></div>
                         <span>Administrasi</span>
                     </a>
 
                     <!-- Psikotes -->
                     <a href="{{ route('hrd.process', 'psikotes') }}"
-                       class="group flex items-center gap-2.5 py-2 px-3 rounded-lg text-sm transition-all duration-300 {{ request()->is('hrd/process/psikotes') ? 'bg-red-600 text-white font-bold shadow-lg shadow-red-500/20 hover:scale-[1.03]' : 'text-slate-500 hover:bg-red-50/40 hover:text-red-600' }}">
-                        <div class="h-2 w-2 rounded-full {{ request()->is('hrd/process/psikotes') ? 'bg-white' : 'bg-red-400' }}"></div>
+                       class="group flex items-center gap-2.5 py-2 px-3 rounded-lg text-sm transition-all duration-300 hover:translate-x-1 {{ request()->is('hrd/process/psikotes') ? 'bg-red-600 text-white font-bold shadow-lg shadow-red-500/20' : 'text-slate-500 hover:bg-red-50/40 hover:text-red-600' }}">
+                        <div class="h-2 w-2 rounded-full transition-transform duration-300 group-hover:scale-125 {{ request()->is('hrd/process/psikotes') ? 'bg-white' : 'bg-red-400' }}"></div>
                         <span>Psikotes</span>
                     </a>
 
                     <!-- Interview -->
                     <a href="{{ route('hrd.process', 'interview') }}"
-                       class="group flex items-center gap-2.5 py-2 px-3 rounded-lg text-sm transition-all duration-300 {{ request()->is('hrd/process/interview') ? 'bg-amber-600 text-white font-bold shadow-lg shadow-amber-500/20 hover:scale-[1.03]' : 'text-slate-500 hover:bg-amber-50/40 hover:text-amber-600' }}">
-                        <div class="h-2 w-2 rounded-full {{ request()->is('hrd/process/interview') ? 'bg-white' : 'bg-amber-400' }}"></div>
+                       class="group flex items-center gap-2.5 py-2 px-3 rounded-lg text-sm transition-all duration-300 hover:translate-x-1 {{ request()->is('hrd/process/interview') ? 'bg-amber-600 text-white font-bold shadow-lg shadow-amber-500/20' : 'text-slate-500 hover:bg-amber-50/40 hover:text-amber-600' }}">
+                        <div class="h-2 w-2 rounded-full transition-transform duration-300 group-hover:scale-125 {{ request()->is('hrd/process/interview') ? 'bg-white' : 'bg-amber-400' }}"></div>
                         <span>Interview</span>
                     </a>
 
                     <!-- MCU -->
                     <a href="{{ route('hrd.process', 'mcu') }}"
-                       class="group flex items-center gap-2.5 py-2 px-3 rounded-lg text-sm transition-all duration-300 {{ request()->is('hrd/process/mcu') ? 'bg-purple-600 text-white font-bold shadow-lg shadow-purple-500/20 hover:scale-[1.03]' : 'text-slate-500 hover:bg-purple-50/40 hover:text-purple-600' }}">
-                        <div class="h-2 w-2 rounded-full {{ request()->is('hrd/process/mcu') ? 'bg-white' : 'bg-purple-400' }}"></div>
+                       class="group flex items-center gap-2.5 py-2 px-3 rounded-lg text-sm transition-all duration-300 hover:translate-x-1 {{ request()->is('hrd/process/mcu') ? 'bg-purple-600 text-white font-bold shadow-lg shadow-purple-500/20' : 'text-slate-500 hover:bg-purple-50/40 hover:text-purple-600 font-semibold' }}">
+                        <div class="h-2 w-2 rounded-full transition-transform duration-300 group-hover:scale-125 {{ request()->is('hrd/process/mcu') ? 'bg-white' : 'bg-purple-400' }}"></div>
                         <span>MCU</span>
                     </a>
                 </div>
             </div>
 
+            <!-- Karyawan Diterima Link -->
             <a href="{{ route('hrd.hired') }}" title="Karyawan Diterima"
-               class="group flex items-center py-2.5 rounded-xl transition-all duration-300 hover:translate-x-1.5 hover:shadow-md {{ request()->routeIs('hrd.hired') ? 'bg-gradient-to-r from-red-50/80 to-red-100/50 border-l-4 border-red-500 text-red-600 font-semibold shadow-sm' : 'text-slate-600 hover:bg-red-50/50 hover:text-red-500 border-l-4 border-transparent' }}"
+               class="group flex items-center py-2.5 rounded-xl transition-all duration-300 hover:translate-x-1 hover:shadow-sm {{ request()->routeIs('hrd.hired') ? 'bg-gradient-to-r from-red-50/80 to-red-100/50 border-l-4 border-red-500 text-red-600 font-semibold shadow-sm' : 'text-slate-600 hover:bg-red-50/50 hover:text-red-500 border-l-4 border-transparent font-semibold' }}"
                :class="desktopSidebarOpen ? 'px-4 gap-3' : 'px-4 md:px-0 md:justify-center'">
                 <svg class="w-5 h-5 shrink-0 transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3 {{ request()->routeIs('hrd.hired') ? 'text-red-500' : 'text-slate-400' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                 </svg>
-                <span :class="desktopSidebarOpen ? '' : 'md:hidden'" class="truncate font-medium">Karyawan Diterima</span>
+                <span :class="desktopSidebarOpen ? '' : 'md:hidden'" class="truncate font-semibold text-sm">Karyawan Diterima</span>
             </a>
 
+            <!-- Kandidat Ditolak Link -->
             <a href="{{ route('hrd.rejected') }}" title="Kandidat Ditolak"
-               class="group flex items-center py-2.5 rounded-xl transition-all duration-300 hover:translate-x-1.5 hover:shadow-md {{ request()->routeIs('hrd.rejected') ? 'bg-gradient-to-r from-red-50/80 to-red-100/50 border-l-4 border-red-500 text-red-600 font-semibold shadow-sm' : 'text-slate-600 hover:bg-red-50/50 hover:text-red-500 border-l-4 border-transparent' }}"
+               class="group flex items-center py-2.5 rounded-xl transition-all duration-300 hover:translate-x-1 hover:shadow-sm {{ request()->routeIs('hrd.rejected') ? 'bg-gradient-to-r from-red-50/80 to-red-100/50 border-l-4 border-red-500 text-red-600 font-semibold shadow-sm' : 'text-slate-600 hover:bg-red-50/50 hover:text-red-500 border-l-4 border-transparent font-semibold' }}"
                :class="desktopSidebarOpen ? 'px-4 gap-3' : 'px-4 md:px-0 md:justify-center'">
                 <svg class="w-5 h-5 shrink-0 transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3 {{ request()->routeIs('hrd.rejected') ? 'text-red-500' : 'text-slate-400' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                 </svg>
-                <span :class="desktopSidebarOpen ? '' : 'md:hidden'" class="truncate font-medium">Kandidat Ditolak</span>
+                <span :class="desktopSidebarOpen ? '' : 'md:hidden'" class="truncate font-semibold text-sm">Kandidat Ditolak</span>
             </a>
         </nav>
         

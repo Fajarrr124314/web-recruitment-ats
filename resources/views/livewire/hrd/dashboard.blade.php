@@ -475,7 +475,7 @@
                             <div class="pt-4 border-t border-slate-100 space-y-3">
                                 <span class="text-[10px] font-black text-slate-400 uppercase tracking-wider block">Tambah Catatan Agenda</span>
                                 <div class="flex gap-2">
-                                    <input type="text" wire:model.live="newNoteText" placeholder="Contoh: Interview Operator"
+                                    <input type="text" wire:model="newNoteText" placeholder="Contoh: Interview Operator"
                                         class="flex-1 px-3 py-2 text-xs border border-red-200 rounded-xl focus:ring-red-500 focus:border-red-500 shadow-sm transition-all"
                                         wire:keydown.enter="addCalendarNote">
                                     <button type="button" wire:click="addCalendarNote" class="px-4 py-2 bg-gradient-to-r from-red-600 to-red-600 hover:from-red-700 hover:to-red-700 text-white text-xs font-bold rounded-xl transition-all shadow-md shadow-red-500/10">

@@ -610,7 +610,7 @@ class Dashboard extends Component
             return;
         }
 
-        $app = Application::with('candidate.user')->find($this->selectedApplicationId);
+        $app = Application::with(['candidate.user', 'answers.requirement'])->find($this->selectedApplicationId);
         if (!$app) {
             return;
         }
@@ -624,7 +624,7 @@ class Dashboard extends Component
         ]);
 
         try {
-            $email = $app->candidate->user->email;
+            $email = $this->getSingleCandidateEmail($app);
             $subject = $this->emailSubject;
             $body = $this->messageText;
 
@@ -723,10 +723,10 @@ class Dashboard extends Component
         $failCount = 0;
 
         foreach ($this->selectedApplications as $appId) {
-            $app = Application::with('candidate.user')->find($appId);
+            $app = Application::with(['candidate.user', 'answers.requirement'])->find($appId);
             if ($app) {
                 try {
-                    $email = $app->candidate->user->email;
+                    $email = $this->getSingleCandidateEmail($app);
                     $parsedSubject = $this->parsePlaceholders($this->bulkEmailSubject, $app);
                     $parsedBody = $this->parsePlaceholders($this->bulkMessageText, $app);
 

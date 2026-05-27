@@ -534,7 +534,7 @@
                     <div>
                         <label for="phone" class="block text-sm font-bold text-slate-750">Nomor WhatsApp <span class="text-red-500">*</span></label>
                         <p class="text-[10px] text-slate-400 mt-0.5 mb-1.5">Digunakan oleh HRD untuk menghubungi Anda mengenai kelanjutan seleksi.</p>
-                        <input wire:model.live.debounce.1000ms="phone" type="text" id="phone" required
+                        <input wire:model="phone" type="text" id="phone" required
                             class="block w-full px-4 py-3 bg-white border border-red-200 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-red-500 transition-all sm:text-sm"
                             placeholder="Contoh: 08123456789">
                         @error('phone') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
@@ -562,16 +562,16 @@
                                 
                                 <div>
                                     @if($req->type === 'text')
-                                        <input type="text" wire:model.live.debounce.1000ms="dynamicAnswers.{{ $req->id }}" class="w-full px-4 py-3 bg-slate-50/50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-red-500 focus:border-red-500 focus:bg-white transition-all shadow-inner" placeholder="Ketik jawaban Anda disini...">
+                                        <input type="text" wire:model="dynamicAnswers.{{ $req->id }}" class="w-full px-4 py-3 bg-slate-50/50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-red-500 focus:border-red-500 focus:bg-white transition-all shadow-inner" placeholder="Ketik jawaban Anda disini...">
                                         @error('dynamicAnswers.'.$req->id) <p class="text-xs text-red-500 mt-1.5 font-medium">{{ $message }}</p> @enderror
                                     @elseif($req->type === 'textarea')
-                                        <textarea wire:model.live.debounce.1000ms="dynamicAnswers.{{ $req->id }}" rows="3" class="w-full px-4 py-3 bg-slate-50/50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-red-500 focus:border-red-500 focus:bg-white transition-all shadow-inner" placeholder="Ketik detail jawaban Anda disini..."></textarea>
+                                        <textarea wire:model="dynamicAnswers.{{ $req->id }}" rows="3" class="w-full px-4 py-3 bg-slate-50/50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-red-500 focus:border-red-500 focus:bg-white transition-all shadow-inner" placeholder="Ketik detail jawaban Anda disini..."></textarea>
                                         @error('dynamicAnswers.'.$req->id) <p class="text-xs text-red-500 mt-1.5 font-medium">{{ $message }}</p> @enderror
                                     @elseif($req->type === 'select')
                                         @php
                                             $options = explode(';', $req->options ?? '');
                                         @endphp
-                                        <select wire:model.live.debounce.1000ms="dynamicAnswers.{{ $req->id }}" class="w-full px-4 py-3 bg-slate-50/50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-red-500 focus:border-red-500 focus:bg-white transition-all shadow-inner">
+                                        <select wire:model="dynamicAnswers.{{ $req->id }}" class="w-full px-4 py-3 bg-slate-50/50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-red-500 focus:border-red-500 focus:bg-white transition-all shadow-inner">
                                             <option value="">Pilih Jawaban</option>
                                             @foreach($options as $opt)
                                                 @if(trim($opt) !== '')
