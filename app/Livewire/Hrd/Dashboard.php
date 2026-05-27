@@ -926,14 +926,8 @@ class Dashboard extends Component
                     ->get();
                 $hasMore[$status] = $totalCount > ($this->limits[$status] ?? 10);
 
-                // Average Rating
-                $avgRating = (clone $baseQuery)
-                    ->whereHas('interviewScores')
-                    ->get()
-                    ->flatMap(function($app) {
-                        return $app->interviewScores->pluck('rating');
-                    })
-                    ->avg();
+                // Average Rating computed directly at database level for maximum speed and memory efficiency (zero N+1 queries)
+                $avgRating = \App\Models\InterviewScore::whereIn('application_id', (clone $baseQuery)->select('id'))->avg('rating');
 
                 // Sebaran per Posisi (Top 3)
                 $jobDistribution = (clone $baseQuery)
