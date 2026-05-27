@@ -8,7 +8,7 @@
             <!-- Glossy Modal Box -->
             <div class="relative w-full max-w-md bg-white/75 backdrop-blur-2xl border border-white/60 p-6 rounded-3xl shadow-2xl shadow-slate-950/20 overflow-hidden animate-scale-up">
                 <!-- Decorative top color bar -->
-                <div class="absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r from-red-500 to-orange-500"></div>
+                <div class="absolute left-[1px] right-[1px] top-[1px] h-[3.5px] bg-gradient-to-r from-red-500 to-orange-500 rounded-t-[22px]"></div>
                 <!-- Shimmer background grid -->
                 <div class="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,87,87,0.03)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,87,87,0.03)_1px,transparent_1px)] bg-[size:16px_16px] pointer-events-none"></div>
 
@@ -1109,7 +1109,7 @@
             <!-- Modal Box -->
             <div class="relative w-full max-w-lg bg-red-950/85 backdrop-blur-2xl border border-red-500/30 p-6 rounded-3xl shadow-2xl overflow-hidden animate-scale-up text-white">
                 <!-- Decorative top color bar -->
-                <div class="absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r from-red-500 to-orange-500"></div>
+                <div class="absolute left-[1px] right-[1px] top-[1px] h-[3.5px] bg-gradient-to-r from-red-500 to-orange-500 rounded-t-[22px]"></div>
                 <!-- Shimmer grid -->
                 <div class="absolute inset-0 bg-[linear-gradient(to_right,rgba(239,68,68,0.03)_1px,transparent_1px),linear-gradient(to_bottom,rgba(239,68,68,0.03)_1px,transparent_1px)] bg-[size:16px_16px] pointer-events-none"></div>
 
@@ -1186,7 +1186,7 @@
             <!-- Modal Box -->
             <div class="bg-white/95 backdrop-blur-xl border border-red-100 rounded-3xl p-6 sm:p-8 shadow-2xl shadow-red-500/10 max-w-lg w-full relative z-10 animate-scale-up text-slate-800">
                 <!-- Top border accent -->
-                <div class="absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r from-emerald-500 to-green-600 rounded-t-3xl"></div>
+                <div class="absolute left-[1px] right-[1px] top-[1px] h-[3.5px] bg-gradient-to-r from-emerald-500 to-green-600 rounded-t-[22px]"></div>
                 
                 <div class="flex items-center justify-between border-b border-red-50 pb-4 mb-4">
                     <div>

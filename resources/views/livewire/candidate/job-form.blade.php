@@ -2,9 +2,9 @@
     @if($existingApplication)
         @if($existingApplication->status === 'Ditolak')
             <!-- Rejection State with Cooldown -->
-            <div class="bg-gradient-to-br from-red-500/5 via-rose-500/5 to-white/60 backdrop-blur-xl border border-red-200/80 rounded-3xl p-6 sm:p-10 shadow-2xl mb-8 relative overflow-hidden">
+            <div class="bg-gradient-to-br from-red-50/5 via-rose-50/5 to-white/60 backdrop-blur-xl border border-red-200/80 rounded-3xl p-6 sm:p-10 shadow-2xl mb-8 relative overflow-hidden">
                 <!-- Top Gradient bar -->
-                <div class="absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r from-red-500 to-rose-600 rounded-t-3xl"></div>
+                <div class="absolute left-[1px] right-[1px] top-[1px] h-[3px] bg-gradient-to-r from-red-500 to-rose-600 rounded-t-[22px]"></div>
 
                 <div class="text-center sm:text-left sm:flex sm:items-start gap-6">
                     <div class="mx-auto sm:mx-0 flex items-center justify-center h-16 w-16 rounded-2xl bg-red-50 border border-red-100 mb-4 sm:mb-0 shrink-0 shadow-inner">
@@ -75,7 +75,7 @@
             <div class="bg-white/80 backdrop-blur-xl border border-white rounded-3xl p-4 sm:p-8 shadow-xl mb-8 relative overflow-hidden
                 {{ $existingApplication->status === 'Hired' ? 'shadow-green-150/40 ring-1 ring-emerald-500/20' : 'shadow-red-100/50' }}">
                 <!-- Top Gradient bar -->
-                <div class="absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r {{ $existingApplication->status === 'Hired' ? 'from-emerald-500 to-green-500' : 'from-red-500 to-red-600' }} rounded-t-3xl"></div>
+                <div class="absolute left-[1px] right-[1px] top-[1px] h-[3px] bg-gradient-to-r {{ $existingApplication->status === 'Hired' ? 'from-emerald-500 to-green-500' : 'from-red-500 to-red-600' }} rounded-t-[22px]"></div>
 
                 <div class="sm:flex sm:items-center sm:justify-between mb-8">
                     <div>
@@ -394,7 +394,7 @@
         <div class="bg-white/80 backdrop-blur-xl border border-red-100 rounded-3xl shadow-2xl shadow-red-500/5 overflow-hidden">
             <!-- Header -->
             <div class="relative bg-white">
-                <div class="absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r from-red-500 to-red-600 rounded-t-3xl"></div>
+                <div class="absolute left-[1px] right-[1px] top-[1px] h-[3px] bg-gradient-to-r from-red-500 to-red-600 rounded-t-[22px]"></div>
                 <div class="p-6 sm:p-10 border-b border-red-50">
                     <div class="flex items-center gap-3 mb-2">
                         <span class="px-3 py-1 rounded-full bg-red-50 text-red-600 text-[10px] font-black uppercase tracking-widest border border-red-100">Registrasi Terbuka</span>
@@ -460,41 +460,59 @@
                                     $isSelected = $job_title === $pos->title;
                                 @endphp
                                 <div wire:click="selectJob('{{ $pos->title }}')" 
-                                     class="relative p-5 rounded-2xl border-2 cursor-pointer transition-all duration-300 flex flex-col justify-between gap-4 select-none
+                                     class="relative p-4 rounded-xl border cursor-pointer transition-all duration-300 flex flex-col justify-between gap-3 select-none
                                      {{ $isSelected 
-                                         ? 'border-red-500 bg-red-50/10 shadow-md shadow-red-500/5 ring-1 ring-red-500/35' 
+                                         ? 'border-red-500 bg-red-50/5 shadow-sm ring-1 ring-red-500/20' 
                                          : 'border-slate-200 hover:border-red-300 hover:bg-slate-50/30' }}">
                                      
-                                     <!-- Decorative Top Highlight when Selected -->
+                                     <!-- Decorative Top Highlight when Selected (mathematically adjusted inside the border to avoid spills) -->
                                      @if($isSelected)
-                                         <div class="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-red-500 to-red-600 rounded-t-2xl"></div>
+                                         <div class="absolute left-[1px] right-[1px] top-[1px] h-[3px] bg-gradient-to-r from-red-500 to-red-600 rounded-t-[10px]"></div>
                                      @endif
 
                                      <div>
                                          <div class="flex items-start justify-between gap-3">
-                                             <h4 class="font-extrabold text-slate-800 text-sm sm:text-base leading-tight group-hover:text-red-650 transition-colors">{{ $pos->title }}</h4>
+                                             <h4 class="font-extrabold text-slate-800 text-xs sm:text-sm leading-tight group-hover:text-red-650 transition-colors">{{ $pos->title }}</h4>
                                              @if($isSelected)
-                                                 <span class="w-5.5 h-5.5 rounded-full bg-red-500 text-white flex items-center justify-center shrink-0 shadow-md shadow-red-500/20">
-                                                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"></path></svg>
+                                                 <span class="w-4.5 h-4.5 rounded-full bg-red-500 text-white flex items-center justify-center shrink-0 shadow-md shadow-red-500/10">
+                                                     <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" stroke-width="3.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"></path></svg>
                                                  </span>
                                              @else
-                                                 <span class="w-5.5 h-5.5 rounded-full border-2 border-slate-200 bg-white shrink-0"></span>
+                                                 <span class="w-4.5 h-4.5 rounded-full border border-slate-200 bg-white shrink-0"></span>
                                              @endif
                                          </div>
                                          
-                                         <!-- Requirements -->
-                                         <div class="mt-3 text-xs font-medium text-slate-650 space-y-1">
-                                             <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-1">Syarat & Kualifikasi:</span>
-                                             @if($pos->requirements)
-                                                 <div class="whitespace-pre-line bg-slate-50/70 p-3 rounded-xl border border-slate-100 leading-relaxed text-slate-600">
-                                                     {{ $pos->requirements }}
-                                                 </div>
-                                             @else
-                                                 <div class="flex items-center gap-1.5 py-1 text-slate-400 italic text-[11px]">
-                                                     <svg class="w-3.5 h-3.5 text-slate-350" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M18 12H6"></path></svg>
-                                                     <span>Tidak ada persyaratan khusus.</span>
-                                                 </div>
-                                             @endif
+                                         <!-- Collapsible Requirements -->
+                                         <div x-data="{ open: @json($isSelected) }" class="mt-2.5">
+                                             <!-- Button to toggle requirements detail -->
+                                             <button type="button" @click.stop="open = !open" class="inline-flex items-center gap-1 px-2.5 py-1 bg-red-50/80 hover:bg-red-100 text-red-650 hover:text-red-700 rounded-lg text-[9px] font-black uppercase tracking-wider transition-all border border-red-200/40 shadow-sm">
+                                                 <svg class="w-2.5 h-2.5 transition-transform duration-300" :class="{ 'rotate-180': open }" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+                                                     <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                                                 </svg>
+                                                 <span x-text="open ? 'Tutup Syarat' : 'Lihat Syarat Detail'"></span>
+                                             </button>
+
+                                             <!-- Requirements Content -->
+                                             <div x-show="open" 
+                                                 x-transition:enter="transition ease-out duration-200"
+                                                 x-transition:enter-start="opacity-0 transform -translate-y-1"
+                                                 x-transition:enter-end="opacity-100 transform translate-y-0"
+                                                 x-transition:leave="transition ease-in duration-100"
+                                                 x-transition:leave-start="opacity-100 transform translate-y-0"
+                                                 x-transition:leave-end="opacity-0 transform -translate-y-1"
+                                                 class="mt-2.5 text-[11px] font-medium text-slate-650 space-y-1">
+                                                 <span class="text-[8px] font-black text-slate-450 uppercase tracking-widest block mb-1">Syarat & Kualifikasi:</span>
+                                                 @if($pos->requirements)
+                                                     <div class="whitespace-pre-line bg-slate-50/70 p-3 rounded-lg border border-slate-150 leading-relaxed text-slate-600 shadow-inner">
+                                                         {{ $pos->requirements }}
+                                                     </div>
+                                                 @else
+                                                     <div class="flex items-center gap-1 py-0.5 text-slate-400 italic text-[10px]">
+                                                         <svg class="w-3 h-3 text-slate-350" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M18 12H6"></path></svg>
+                                                         <span>Tidak ada persyaratan khusus.</span>
+                                                     </div>
+                                                 @endif
+                                             </div>
                                          </div>
                                      </div>
 
