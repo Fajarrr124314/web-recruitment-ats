@@ -6,13 +6,13 @@ use Livewire\Component;
 use App\Models\Application;
 use Livewire\WithPagination;
 
-class RejectedCandidates extends Component
+class HiredCandidates extends Component
 {
     use WithPagination;
 
     public string $search = '';
     public ?int $selectedApplicationId = null;
-    public string $whatsappTemplate = "Halo [Nama Kandidat],\n\nKami dari [Nama Perusahaan] ingin memberikan informasi lanjutan terkait dengan proses rekrutmen Anda.\n\nMohon konfirmasi kehadirannya jika dihubungi kembali. Terima kasih.";
+    public string $whatsappTemplate = "Halo [Nama Kandidat],\n\nKami dari [Nama Perusahaan] ingin memberikan informasi lanjutan terkait dengan proses setelah diterimanya Anda di posisi [Posisi Dilamar].\n\nSelamat atas kelulusan Anda! Mohon konfirmasinya. Terima kasih.";
     public array $selectedApplications = [];
 
     // Custom Confirm Modal Properties
@@ -49,13 +49,13 @@ class RejectedCandidates extends Component
         if ($application) {
             $application->update([
                 'status' => $newStatus,
-                'rejection_reason' => $newStatus === 'Ditolak' ? $application->rejection_reason : null,
-                'rejected_at' => $newStatus === 'Ditolak' ? $application->rejected_at : null,
+                'rejection_reason' => $newStatus === 'Ditolak' ? 'Kandidat dipindahkan ke Ditolak.' : null,
+                'rejected_at' => $newStatus === 'Ditolak' ? now() : null,
             ]);
             
             session()->flash('board_success', "Status {$application->candidate->user->name} berhasil dipindahkan ke {$newStatus}");
             
-            if ($this->selectedApplicationId === $id && $newStatus !== 'Ditolak') {
+            if ($this->selectedApplicationId === $id && $newStatus !== 'Hired') {
                 $this->closeDetails();
             }
         }
@@ -67,7 +67,7 @@ class RejectedCandidates extends Component
         if ($app) {
             $name = $app->candidate->user->name;
             $app->delete();
-            session()->flash('board_success', "Data kandidat {$name} telah dihapus permanen.");
+            session()->flash('board_success', "Data karyawan {$name} telah dihapus.");
             if ($this->selectedApplicationId === $id) {
                 $this->closeDetails();
             }
@@ -102,7 +102,7 @@ class RejectedCandidates extends Component
         $count = count($this->selectedApplications);
         Application::whereIn('id', $this->selectedApplications)->delete();
 
-        session()->flash('board_success', "{$count} data kandidat gagal berhasil dihapus secara massal.");
+        session()->flash('board_success', "{$count} data karyawan Hired berhasil dihapus secara massal.");
         $this->selectedApplications = [];
 
         if ($this->selectedApplicationId && !Application::find($this->selectedApplicationId)) {
@@ -159,11 +159,88 @@ class RejectedCandidates extends Component
         return 'https://wa.me/' . $phoneClean . '?text=' . urlencode($message);
     }
 
+    public function exportExcel()
+    {
+        $hired = Application::with(['candidate.user', 'interviewScores'])
+            ->where('status', 'Hired')
+            ->when($this->search, function($q) {
+                $q->whereHas('candidate.user', function($uq) {
+                    $uq->where('name', 'like', '%' . $this->search . '%')
+                       ->orWhere('email', 'like', '%' . $this->search . '%');
+                });
+            })
+            ->latest()
+            ->get();
+
+        $filename = 'data_karyawan_diterima_' . date('Ymd_His') . '.xls';
+
+        return response()->streamDownload(function() use ($hired) {
+            echo "
+            <html xmlns:o=\"urn:schemas-microsoft-com:office:office\" xmlns:x=\"urn:schemas-microsoft-com:office:excel\" xmlns=\"http://www.w3.org/TR/REC-html40\">
+            <head>
+                <meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">
+                <style>
+                    table { border-collapse: collapse; }
+                    th { background-color: #10b981; color: white; font-weight: bold; border: 1px solid #d1d5db; padding: 8px; text-align: left; }
+                    td { border: 1px solid #e5e7eb; padding: 8px; text-align: left; }
+                    .header-title { font-size: 16pt; font-weight: bold; margin-bottom: 10px; color: #1e293b; }
+                </style>
+            </head>
+            <body>
+                <div class=\"header-title\">Data Karyawan Diterima (Hired)</div>
+                <div style=\"margin-bottom: 15px; color: #64748b;\">Ekspor data pada: " . date('d M Y H:i:s') . "</div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Nama Kandidat</th>
+                            <th>Email</th>
+                            <th>Telepon / WhatsApp</th>
+                            <th>Posisi yang Dilamar</th>
+                            <th>Tanggal Diterima</th>
+                            <th>Rating Interview</th>
+                        </tr>
+                    </thead>
+                    <tbody>";
+            
+            foreach ($hired as $index => $app) {
+                $avgRating = $app->interviewScores->avg('rating');
+                $ratingText = $avgRating ? number_format($avgRating, 1) . ' / 5.0' : 'Belum Dinilai';
+                $name = $app->candidate->user->name;
+                $email = $app->candidate->user->email;
+                $phone = $app->candidate->phone;
+                $position = $app->job_title;
+                $hiredDate = $app->updated_at ? $app->updated_at->format('d M Y') : '-';
+                $no = $index + 1;
+
+                echo "
+                        <tr>
+                            <td>{$no}</td>
+                            <td>{$name}</td>
+                            <td>{$email}</td>
+                            <td>'{$phone}</td>
+                            <td>{$position}</td>
+                            <td>{$hiredDate}</td>
+                            <td>{$ratingText}</td>
+                        </tr>";
+            }
+            
+            echo "
+                    </tbody>
+                </table>
+            </body>
+            </html>";
+        }, $filename, [
+            'Content-Type' => 'application/vnd.ms-excel',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+            'Cache-Control' => 'max-age=0',
+        ]);
+    }
+
     public function render()
     {
-        // Query for Rejected Candidates
-        $rejectedQuery = Application::with(['candidate.user', 'interviewScores'])
-            ->where('status', 'Ditolak')
+        $query = Application::with(['candidate.user', 'interviewScores'])
+            ->where('status', 'Hired')
             ->when($this->search, function($q) {
                 $q->whereHas('candidate.user', function($uq) {
                     $uq->where('name', 'like', '%' . $this->search . '%')
@@ -176,11 +253,9 @@ class RejectedCandidates extends Component
             ? Application::with(['candidate.user', 'interviewScores.interviewer', 'answers.requirement'])->find($this->selectedApplicationId)
             : null;
 
-        return view('livewire.hrd.rejected-candidates', [
-            'rejectedApplications' => $rejectedQuery->paginate(20),
+        return view('livewire.hrd.hired-candidates', [
+            'hiredApplications' => $query->paginate(20),
             'selectedApplication' => $selectedApplication,
         ])->layout('components.layouts.hrd');
     }
 }
-
-

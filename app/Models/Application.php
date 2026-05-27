@@ -42,4 +42,9 @@ class Application extends Model
     {
         return $this->hasMany(ApplicationAnswer::class);
     }
+
+    public function activityLogs()
+    {
+        return $this->hasMany(RecruiterActivityLog::class)->latest();
+    }
 }

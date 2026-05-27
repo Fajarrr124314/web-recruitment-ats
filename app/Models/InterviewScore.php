@@ -14,6 +14,11 @@ class InterviewScore extends Model
         'interviewer_id',
         'rating',
         'notes',
+        'stage',
+        'technical_rating',
+        'communication_rating',
+        'problem_solving_rating',
+        'culture_fit_rating',
     ];
 
     /**

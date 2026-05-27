@@ -8,11 +8,14 @@ use App\Models\JobPosition;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use Livewire\Component;
+use Livewire\WithPagination;
 
-class Dashboard extends Component
+class CandidateStage extends Component
 {
+    use WithPagination;
+
+    public string $stage = ''; // Active stage name (mapped from route)
     public ?int $selectedApplicationId = null;
-    public string $activeMobileTab = 'Administrasi';
     
     public array $templates = [
         'psikotes' => [
@@ -71,127 +74,50 @@ class Dashboard extends Component
     // Bulk Reject Modal State
     public bool $showBulkRejectModal = false;
     public string $bulkRejectReason = '';
+
     // Bulk Action State
     public array $selectedApplications = [];
 
-    // Optimization State Variables
-    public string $viewMode = 'kanban'; // 'kanban', 'table', or 'rejected'
+    // Filter & Pagination States
     public string $search = '';
     public string $jobTitleFilter = '';
     public string $sortBy = 'latest'; // 'latest' or 'rating_desc'
+    public int $limit = 20;
 
     // Auto-Screening & Matching Engine State
     public bool $enableScreening = false;
     public string $filterSkill = '';
     public string $filterEducation = '';
     public string $filterExperience = '';
-    public array $limits = [
-        'Administrasi' => 10,
-        'Psikotes' => 10,
-        'Interview' => 10,
-        'MCU' => 10,
-    ];
-    public int $tableLimit = 20;
 
-    // Calendar & Notes Component State
-    public int $calendarYear;
-    public int $calendarMonth;
-    public string $newNoteText = '';
-    public string $selectedDate = '';
-    public array $notes = [];
-    public string $floatingReminder = '';
-
-    public function mount()
+    public function mount(string $stage)
     {
         $user = Auth::user();
         if (!$user || !$user->isHrd()) {
             return redirect()->route('login');
         }
 
-        // Initialize Calendar
-        $this->calendarYear = (int) now()->year;
-        $this->calendarMonth = (int) now()->month;
-        $this->loadCalendarNotes();
-        $this->checkTodayNotes();
-    }
+        $allowedStages = [
+            'administrasi' => 'Administrasi',
+            'psikotes' => 'Psikotes',
+            'interview' => 'Interview',
+            'mcu' => 'MCU',
+        ];
 
-    public function loadCalendarNotes()
-    {
-        $notesVal = \App\Models\RecruitmentSetting::getValue('calendar_notes', '[]');
-        $this->notes = json_decode($notesVal, true) ?: [];
-    }
-
-    public function saveCalendarNotes()
-    {
-        \App\Models\RecruitmentSetting::setValue('calendar_notes', json_encode($this->notes));
-    }
-
-    public function selectCalendarDate($date)
-    {
-        $this->selectedDate = $date;
-        $this->newNoteText = '';
-    }
-
-    public function addCalendarNote()
-    {
-        if (!$this->selectedDate) return;
-        
-        if (empty($this->newNoteText)) return;
-
-        if (!isset($this->notes[$this->selectedDate])) {
-            $this->notes[$this->selectedDate] = [];
+        $stageSlug = strtolower($stage);
+        if (!array_key_exists($stageSlug, $allowedStages)) {
+            abort(404);
         }
-        $this->notes[$this->selectedDate][] = $this->newNoteText;
-        $this->saveCalendarNotes();
-        
-        $this->newNoteText = '';
-        $this->floatingReminder = "Catatan berhasil ditambahkan pada tanggal " . $this->selectedDate;
+
+        $this->stage = $allowedStages[$stageSlug];
     }
 
-    public function removeCalendarNote($date, $index)
-    {
-        if (isset($this->notes[$date][$index])) {
-            unset($this->notes[$date][$index]);
-            $this->notes[$date] = array_values($this->notes[$date]);
-            if (empty($this->notes[$date])) {
-                unset($this->notes[$date]);
-            }
-            $this->saveCalendarNotes();
-        }
-    }
-
-    public function prevMonth()
-    {
-        $this->calendarMonth--;
-        if ($this->calendarMonth < 1) {
-            $this->calendarMonth = 12;
-            $this->calendarYear--;
-        }
-    }
-
-    public function nextMonth()
-    {
-        $this->calendarMonth++;
-        if ($this->calendarMonth > 12) {
-            $this->calendarMonth = 1;
-            $this->calendarYear++;
-        }
-    }
-
-    public function checkTodayNotes()
-    {
-        $today = now()->format('Y-m-d');
-        if (isset($this->notes[$today]) && count($this->notes[$today]) > 0) {
-            $this->floatingReminder = "Pengingat Hari Ini: " . implode(', ', $this->notes[$today]);
-        }
-    }
-
-    public function updatedSearch() { $this->resetLimits(); }
-    public function updatedJobTitleFilter() { $this->resetLimits(); }
-    public function updatedFilterSkill() { $this->resetLimits(); }
-    public function updatedFilterEducation() { $this->resetLimits(); }
-    public function updatedFilterExperience() { $this->resetLimits(); }
-    public function updatedEnableScreening() { $this->resetLimits(); }
+    public function updatedSearch() { $this->resetLimit(); }
+    public function updatedJobTitleFilter() { $this->resetLimit(); }
+    public function updatedFilterSkill() { $this->resetLimit(); }
+    public function updatedFilterEducation() { $this->resetLimit(); }
+    public function updatedFilterExperience() { $this->resetLimit(); }
+    public function updatedEnableScreening() { $this->resetLimit(); }
 
     private function logActivity(int $appId, string $action, string $description)
     {
@@ -272,32 +198,14 @@ class Dashboard extends Component
         return $maxScore > 0 ? (int)round(($score / $maxScore) * 100) : 100;
     }
     
-    public function resetLimits()
+    public function resetLimit()
     {
-        $this->limits = [
-            'Administrasi' => 10,
-            'Psikotes' => 10,
-            'Interview' => 10,
-            'MCU' => 10,
-        ];
-        $this->tableLimit = 20;
+        $this->limit = 20;
     }
 
-    public function loadMore(string $status)
+    public function loadMore()
     {
-        if (isset($this->limits[$status])) {
-            $this->limits[$status] += 10;
-        }
-    }
-
-    public function loadMoreTable()
-    {
-        $this->tableLimit += 20;
-    }
-
-    public function setViewMode(string $mode)
-    {
-        $this->viewMode = $mode;
+        $this->limit += 20;
     }
 
     public function selectApplication(int $id)
@@ -335,7 +243,13 @@ class Dashboard extends Component
                 'rejected_at' => null,
             ]);
             $this->logActivity($id, 'status_change', "Memindahkan status kandidat ke: {$newStatus}");
-            session()->flash('board_success', "Status {$application->candidate->user->name} dipindahkan ke {$newStatus}");
+            session()->flash('stage_success', "Status {$application->candidate->user->name} dipindahkan ke {$newStatus}");
+            
+            // If moved, deselect from current page
+            $this->selectedApplications = array_diff($this->selectedApplications, [$id]);
+            if ($this->selectedApplicationId === $id) {
+                $this->closeDetails();
+            }
         }
     }
 
@@ -367,7 +281,10 @@ class Dashboard extends Component
                     'rejected_at' => now(),
                 ]);
                 $this->logActivity($app->id, 'rejected', "Menolak kandidat dengan alasan: \"{$this->rejectReason}\"");
-                session()->flash('board_success', "Kandidat {$app->candidate->user->name} ditandai sebagai Tidak Lolos.");
+                session()->flash('stage_success', "Kandidat {$app->candidate->user->name} ditandai sebagai Tidak Lolos.");
+                
+                // Deselect if rejected
+                $this->selectedApplications = array_diff($this->selectedApplications, [$this->selectedApplicationId]);
                 $this->closeDetails();
             }
         }
@@ -379,7 +296,7 @@ class Dashboard extends Component
         if ($app) {
             $name = $app->candidate->user->name;
             $app->delete();
-            session()->flash('board_success', "Data kandidat {$name} telah dihapus permanen.");
+            session()->flash('stage_success', "Data kandidat {$name} telah dihapus permanen.");
             if ($this->selectedApplicationId === $id) {
                 $this->closeDetails();
             }
@@ -391,6 +308,38 @@ class Dashboard extends Component
     public function clearSelection()
     {
         $this->selectedApplications = [];
+    }
+
+    public function toggleSelectAll()
+    {
+        // Get all candidate IDs currently matching active filters in this stage
+        $stageIds = Application::where('status', $this->stage)
+            ->where('status', '!=', 'Draft')
+            ->when($this->jobTitleFilter, function($q) {
+                $q->where('job_title', $this->jobTitleFilter);
+            })
+            ->when($this->search, function($q) {
+                $q->whereHas('candidate.user', function($uq) {
+                    $uq->where('name', 'like', '%' . $this->search . '%')
+                       ->orWhere('email', 'like', '%' . $this->search . '%');
+                });
+            })
+            ->pluck('id')
+            ->toArray();
+
+        if (empty($stageIds)) {
+            return;
+        }
+
+        // Check if all are selected
+        $alreadySelected = array_intersect($stageIds, $this->selectedApplications);
+        if (count($alreadySelected) === count($stageIds)) {
+            // Deselect all
+            $this->selectedApplications = array_diff($this->selectedApplications, $stageIds);
+        } else {
+            // Select all
+            $this->selectedApplications = array_unique(array_merge($this->selectedApplications, $stageIds));
+        }
     }
 
     public function bulkChangeStatus(string $newStatus)
@@ -416,7 +365,7 @@ class Dashboard extends Component
             'rejected_at' => null,
         ]);
 
-        session()->flash('board_success', count($this->selectedApplications) . " kandidat berhasil dipindahkan serentak ke {$newStatus}.");
+        session()->flash('stage_success', count($this->selectedApplications) . " kandidat berhasil dipindahkan serentak ke {$newStatus}.");
         $this->selectedApplications = [];
     }
 
@@ -437,7 +386,7 @@ class Dashboard extends Component
         ]);
 
         $count = count($this->selectedApplications);
-        session()->flash('board_success', "{$count} kandidat berhasil ditolak serentak dengan alasan yang ditentukan.");
+        session()->flash('stage_success', "{$count} kandidat berhasil ditolak serentak dengan alasan yang ditentukan.");
         $this->showBulkRejectModal = false;
         $this->selectedApplications = [];
     }
@@ -445,38 +394,6 @@ class Dashboard extends Component
     public function closeBulkRejectModal()
     {
         $this->showBulkRejectModal = false;
-    }
-
-    public function toggleSelectStage(string $stage)
-    {
-        // Get all candidate IDs in this stage (respecting active search/filter)
-        $stageIds = Application::where('status', $stage)
-            ->where('status', '!=', 'Draft')
-            ->when($this->jobTitleFilter, function($q) {
-                $q->where('job_title', $this->jobTitleFilter);
-            })
-            ->when($this->search, function($q) {
-                $q->whereHas('candidate.user', function($uq) {
-                    $uq->where('name', 'like', '%' . $this->search . '%')
-                       ->orWhere('email', 'like', '%' . $this->search . '%');
-                });
-            })
-            ->pluck('id')
-            ->toArray();
-
-        if (empty($stageIds)) {
-            return;
-        }
-
-        // Check if all of these IDs are already in selectedApplications
-        $alreadySelected = array_intersect($stageIds, $this->selectedApplications);
-        if (count($alreadySelected) === count($stageIds)) {
-            // Deselect all in this stage
-            $this->selectedApplications = array_diff($this->selectedApplications, $stageIds);
-        } else {
-            // Select all in this stage
-            $this->selectedApplications = array_unique(array_merge($this->selectedApplications, $stageIds));
-        }
     }
 
     public function bulkDelete()
@@ -490,7 +407,7 @@ class Dashboard extends Component
         // Remove from database
         Application::whereIn('id', $this->selectedApplications)->delete();
 
-        session()->flash('board_success', "{$count} data kandidat berhasil dihapus secara massal.");
+        session()->flash('stage_success', "{$count} data kandidat berhasil dihapus secara massal.");
         $this->selectedApplications = [];
     }
 
@@ -519,9 +436,8 @@ class Dashboard extends Component
             return;
         }
 
-        // Tentukan stage dari status aplikasi saat ini
-        $app = Application::find($this->selectedApplicationId);
-        $currentStage = $app?->status ?? 'Interview';
+        // Stage sudah jelas dari context halaman ini
+        $currentStage = $this->stage;
 
         // Ambil label dimensi aktual untuk log yang informatif
         $dims = \App\Support\StageRubric::getDimensions($currentStage);
@@ -745,9 +661,9 @@ class Dashboard extends Component
         $this->selectedApplications = [];
         
         if ($failCount > 0) {
-            session()->flash('board_success', "Berhasil mengirim email massal ke {$successCount} kandidat. (Gagal: {$failCount})");
+            session()->flash('stage_success', "Berhasil mengirim email massal ke {$successCount} kandidat. (Gagal: {$failCount})");
         } else {
-            session()->flash('board_success', "Berhasil mengirim email massal ke {$successCount} kandidat secara serentak!");
+            session()->flash('stage_success', "Berhasil mengirim email massal ke {$successCount} kandidat secara serentak!");
         }
     }
 
@@ -836,17 +752,11 @@ class Dashboard extends Component
 
     public function render()
     {
-        // Base Query
+        // Query
         $query = Application::with(['candidate.user', 'interviewScores.interviewer'])
             ->withAvg('interviewScores', 'rating')
+            ->where('status', $this->stage)
             ->where('status', '!=', 'Draft')
-            ->where(function($q) {
-                $q->whereNot(function($inner) {
-                    $inner->whereHas('candidate.user', function($uq) {
-                        $uq->where('name', 'topae');
-                    })->where('job_title', 'Digital Marketing');
-                });
-            })
             ->when($this->jobTitleFilter, function($q) {
                 $q->where('job_title', $this->jobTitleFilter);
             })
@@ -862,143 +772,37 @@ class Dashboard extends Component
                 $q->latest();
             });
 
-        $grouped = [];
-        $tableApplications = collect();
-        $totalTableCount = 0;
-        $hasMoreTable = false;
-        $stageSummaries = [];
+        $totalCount = $query->count();
         
-        $hasMore = [
-            'Administrasi' => false,
-            'Psikotes' => false,
-            'Interview' => false,
-            'MCU' => false,
-            'Hired' => false,
-        ];
-
-        if ($this->viewMode === 'kanban') {
-            // Count total candidates overall for progress calculation
-            $totalActiveCandidates = Application::whereIn('status', ['Administrasi', 'Psikotes', 'Interview', 'MCU'])
-                ->where('status', '!=', 'Draft')
-                ->where(function($q) {
-                    $q->whereNot(function($inner) {
-                        $inner->whereHas('candidate.user', function($uq) {
-                            $uq->where('name', 'topae');
-                        })->where('job_title', 'Digital Marketing');
-                    });
-                })
-                ->when($this->jobTitleFilter, function($q) {
-                    $q->where('job_title', $this->jobTitleFilter);
-                })
-                ->when($this->search, function($q) {
-                    $q->whereHas('candidate.user', function($uq) {
-                        $uq->where('name', 'like', '%' . $this->search . '%')
-                           ->orWhere('email', 'like', '%' . $this->search . '%');
-                    });
-                })
-                ->count();
-
-            foreach (['Administrasi', 'Psikotes', 'Interview', 'MCU', 'Hired'] as $status) {
-                // Base filter query
-                $baseQuery = Application::where('status', $status)
-                    ->where('status', '!=', 'Draft')
-                    ->where(function($q) {
-                        $q->whereNot(function($inner) {
-                            $inner->whereHas('candidate.user', function($uq) {
-                                $uq->where('name', 'topae');
-                            })->where('job_title', 'Digital Marketing');
-                        });
-                    })
-                    ->when($this->jobTitleFilter, function($q) {
-                        $q->where('job_title', $this->jobTitleFilter);
-                    })
-                    ->when($this->search, function($q) {
-                        $q->whereHas('candidate.user', function($uq) {
-                            $uq->where('name', 'like', '%' . $this->search . '%')
-                               ->orWhere('email', 'like', '%' . $this->search . '%');
-                        });
-                    });
-
-                $totalCount = $baseQuery->count();
-                $grouped[$status] = (clone $baseQuery)
-                    ->with(['candidate.user', 'interviewScores.interviewer'])
-                    ->take($this->limits[$status] ?? 10)
-                    ->get();
-                $hasMore[$status] = $totalCount > ($this->limits[$status] ?? 10);
-
-                // Average Rating
-                $avgRating = (clone $baseQuery)
-                    ->whereHas('interviewScores')
-                    ->get()
-                    ->flatMap(function($app) {
-                        return $app->interviewScores->pluck('rating');
-                    })
-                    ->avg();
-
-                // Sebaran per Posisi (Top 3)
-                $jobDistribution = (clone $baseQuery)
-                    ->select('job_title', \Illuminate\Support\Facades\DB::raw('count(*) as count'))
-                    ->groupBy('job_title')
-                    ->orderByDesc('count')
-                    ->take(3)
-                    ->get()
-                    ->pluck('count', 'job_title')
-                    ->toArray();
-
-                // Kandidat Terbaru
-                $latestCandidate = (clone $baseQuery)
-                    ->with('candidate.user')
-                    ->latest()
-                    ->first();
-
-                $stageSummaries[$status] = [
-                    'totalCount' => $totalCount,
-                    'avgRating' => $avgRating ? number_format($avgRating, 1) : null,
-                    'jobDistribution' => $jobDistribution,
-                    'latestCandidateName' => $latestCandidate ? $latestCandidate->candidate->user->name : null,
-                    'percentage' => $totalActiveCandidates > 0 ? round(($totalCount / $totalActiveCandidates) * 100) : 0,
-                ];
-            }
-
-            // Set active mobile tab to the first non-empty stage if the current active tab has 0 candidates
-            $nonEmptyStages = collect(['Administrasi', 'Psikotes', 'Interview', 'MCU', 'Hired'])
-                ->filter(fn($st) => ($stageSummaries[$st]['totalCount'] ?? 0) > 0);
-            
-            if (!$nonEmptyStages->contains($this->activeMobileTab) && $nonEmptyStages->isNotEmpty()) {
-                $this->activeMobileTab = $nonEmptyStages->first();
-            }
-        } elseif ($this->viewMode === 'table') {
-            $activeQuery = (clone $query)->whereNotIn('status', ['Ditolak', 'Hired']);
-            $totalTableCount = $activeQuery->count();
-            
-            $tableApplications = $activeQuery->get()->map(function ($app) {
+        if ($this->enableScreening) {
+            $applications = $query->get()->map(function ($app) {
                 $app->match_score = $this->calculateMatchScore($app);
                 return $app;
             })
             ->sortByDesc('match_score')
-            ->take($this->tableLimit);
-            
-            $hasMoreTable = $totalTableCount > $this->tableLimit;
+            ->take($this->limit);
+        } else {
+            $applications = $query->take($this->limit)->get();
         }
+        
+        $hasMore = $totalCount > $this->limit;
 
         $selectedApplication = $this->selectedApplicationId
             ? Application::with(['candidate.user', 'interviewScores.interviewer', 'answers.requirement', 'activityLogs'])->find($this->selectedApplicationId)
             : null;
 
         // Stage-specific rubric computation
-        $currentStage    = $selectedApplication?->status ?? 'Interview';
-        $stageDimensions = \App\Support\StageRubric::getDimensions($currentStage);
+        $currentStage     = $this->stage;
+        $stageDimensions  = \App\Support\StageRubric::getDimensions($currentStage);
         $sliderDimensions = \App\Support\StageRubric::getSliderDimensions($currentStage, $this);
         $stageScores = $selectedApplication
             ? $selectedApplication->interviewScores->filter(fn($s) => !$s->stage || $s->stage === $currentStage)
             : collect();
 
-        return view('livewire.hrd.dashboard', [
-            'groupedApplications' => $grouped,
-            'tableApplications'   => $tableApplications,
+        return view('livewire.hrd.candidate-stage', [
+            'applications'        => $applications,
+            'totalCount'          => $totalCount,
             'hasMore'             => $hasMore,
-            'hasMoreTable'        => $hasMoreTable,
-            'stageSummaries'      => $stageSummaries,
             'selectedApplication' => $selectedApplication,
             'availableJobTitles'  => JobPosition::where('is_active', true)->pluck('title'),
             'currentStage'        => $currentStage,

@@ -1,11 +1,11 @@
-<div class="h-full bg-slate-50/50 flex flex-col overflow-y-auto space-y-8 p-6">
+<div class="max-w-7xl mx-auto py-4 sm:py-8 space-y-8">
     <!-- Header -->
-    <div class="bg-gradient-to-r from-slate-900 via-slate-800 to-red-950 p-6 sm:p-8 rounded-3xl border border-slate-700/50 shadow-2xl relative overflow-hidden">
+    <div class="bg-gradient-to-r from-slate-900 via-slate-800 to-red-950 p-6 rounded-3xl border border-slate-700/50 shadow-2xl relative overflow-hidden">
         <div class="absolute -right-24 -top-24 w-52 h-52 bg-red-500/20 rounded-full blur-3xl"></div>
         <div class="absolute -left-24 -bottom-24 w-52 h-52 bg-slate-500/20 rounded-full blur-3xl"></div>
         <div class="relative z-10">
             <div class="flex items-center gap-2 mb-2">
-                <span class="px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-red-500 text-white shadow-sm">
+                <span class="px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-red-500 text-white">
                     Rekap & Analitik
                 </span>
             </div>
@@ -17,30 +17,30 @@
     <!-- KPI Cards Row -->
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
         <!-- Total Candidates -->
-        <div class="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm relative overflow-hidden group hover:shadow-md transition-all">
-            <div class="absolute -right-4 -top-4 w-16 h-16 bg-blue-50 rounded-full group-hover:scale-110 transition-transform"></div>
-            <div class="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1">Total Pelamar</div>
+        <div class="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm relative overflow-hidden">
+            <div class="absolute -right-4 -top-4 w-16 h-16 bg-blue-50 rounded-full"></div>
+            <div class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Total Pelamar</div>
             <div class="text-3xl font-extrabold text-slate-800">{{ $totalCandidates }}</div>
             <div class="text-xs text-blue-600 mt-1 font-semibold">Semua Tahap</div>
         </div>
         <!-- Active -->
-        <div class="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm relative overflow-hidden group hover:shadow-md transition-all">
-            <div class="absolute -right-4 -top-4 w-16 h-16 bg-amber-50 rounded-full group-hover:scale-110 transition-transform"></div>
-            <div class="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1">Kandidat Aktif</div>
+        <div class="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm relative overflow-hidden">
+            <div class="absolute -right-4 -top-4 w-16 h-16 bg-amber-50 rounded-full"></div>
+            <div class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Kandidat Aktif</div>
             <div class="text-3xl font-extrabold text-amber-600">{{ $totalActive }}</div>
             <div class="text-xs text-amber-600 mt-1 font-semibold">Sedang Diproses</div>
         </div>
         <!-- Hired -->
-        <div class="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm relative overflow-hidden group hover:shadow-md transition-all">
-            <div class="absolute -right-4 -top-4 w-16 h-16 bg-emerald-50 rounded-full group-hover:scale-110 transition-transform"></div>
-            <div class="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1">Diterima (Hired)</div>
+        <div class="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm relative overflow-hidden">
+            <div class="absolute -right-4 -top-4 w-16 h-16 bg-emerald-50 rounded-full"></div>
+            <div class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Diterima (Hired)</div>
             <div class="text-3xl font-extrabold text-emerald-600">{{ $totalHired }}</div>
             <div class="text-xs text-emerald-600 mt-1 font-semibold">{{ $acceptanceRate }}% Acceptance Rate</div>
         </div>
         <!-- Rejected -->
-        <div class="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm relative overflow-hidden group hover:shadow-md transition-all">
-            <div class="absolute -right-4 -top-4 w-16 h-16 bg-red-50 rounded-full group-hover:scale-110 transition-transform"></div>
-            <div class="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1">Ditolak / Gagal</div>
+        <div class="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm relative overflow-hidden">
+            <div class="absolute -right-4 -top-4 w-16 h-16 bg-red-50 rounded-full"></div>
+            <div class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Ditolak / Gagal</div>
             <div class="text-3xl font-extrabold text-red-600">{{ $totalRejected }}</div>
             <div class="text-xs text-red-600 mt-1 font-semibold">{{ $rejectionRate }}% Rejection Rate</div>
         </div>
@@ -49,7 +49,7 @@
     <!-- Funnel + Time to Hire Row -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <!-- Recruitment Funnel (2/3 width) -->
-        <div class="lg:col-span-2 bg-white border border-slate-150 rounded-3xl shadow-xl shadow-red-100/5 p-6 sm:p-8 relative overflow-hidden">
+        <div class="lg:col-span-2 bg-white border border-slate-100 rounded-3xl shadow-xl shadow-red-100/10 p-6 sm:p-8 relative overflow-hidden">
             <!-- Ambient Glowing background -->
             <div class="absolute -right-24 -bottom-24 w-52 h-52 bg-rose-500/5 rounded-full blur-3xl"></div>
             
@@ -62,42 +62,17 @@
             <div class="flex flex-col items-center justify-center space-y-4 py-4">
                 @php
                     $funnelColors = [
-                        'Administrasi' => [
-                            'bg' => 'from-blue-500 to-cyan-500', 
-                            'glow' => 'shadow-blue-500/30 border-blue-400/40', 
-                            'text' => 'text-blue-600',
-                            'icon' => '<svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>'
-                        ],
-                        'Psikotes' => [
-                            'bg' => 'from-rose-500 to-pink-500', 
-                            'glow' => 'shadow-rose-500/30 border-rose-400/40', 
-                            'text' => 'text-rose-600',
-                            'icon' => '<svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path></svg>'
-                        ],
-                        'Interview' => [
-                            'bg' => 'from-amber-500 to-orange-500', 
-                            'glow' => 'shadow-amber-500/30 border-amber-400/40', 
-                            'text' => 'text-amber-600',
-                            'icon' => '<svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z"></path></svg>'
-                        ],
-                        'MCU' => [
-                            'bg' => 'from-purple-500 to-indigo-500', 
-                            'glow' => 'shadow-purple-500/30 border-purple-400/40', 
-                            'text' => 'text-purple-600',
-                            'icon' => '<svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>'
-                        ],
-                        'Hired' => [
-                            'bg' => 'from-emerald-500 to-teal-500', 
-                            'glow' => 'shadow-emerald-500/30 border-emerald-400/40', 
-                            'text' => 'text-emerald-600',
-                            'icon' => '<svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15a7 7 0 100-14 7 7 0 000 14zm0 0v6M8 21h8M4 7h16M4 7a3 3 0 000 6h1M20 7a3 3 0 010 6h-1"></path></svg>'
-                        ],
+                        'Administrasi' => ['bg' => 'from-blue-500 to-indigo-500', 'glow' => 'shadow-blue-500/20', 'icon' => '📄'],
+                        'Psikotes'     => ['bg' => 'from-red-500 to-rose-500', 'glow' => 'shadow-red-500/20', 'icon' => '🧠'],
+                        'Interview'    => ['bg' => 'from-amber-500 to-orange-500', 'glow' => 'shadow-amber-500/20', 'icon' => '💬'],
+                        'MCU'          => ['bg' => 'from-purple-500 to-fuchsia-500', 'glow' => 'shadow-purple-500/20', 'icon' => '🏥'],
+                        'Hired'        => ['bg' => 'from-emerald-500 to-green-500', 'glow' => 'shadow-emerald-500/20', 'icon' => '🏆'],
                     ];
                     $maxCount = collect($conversionRates)->max('count') ?: 1;
                 @endphp
                 @foreach($conversionRates as $stageName => $stageData)
                     @php
-                        $colors = $funnelColors[$stageName] ?? ['bg' => 'from-slate-400 to-slate-500', 'glow' => 'shadow-slate-500/20 border-slate-300', 'text' => 'text-slate-600', 'icon' => '•'];
+                        $colors = $funnelColors[$stageName] ?? ['bg' => 'from-slate-400 to-slate-500', 'glow' => 'shadow-slate-500/20', 'icon' => '•'];
                         $stepDownRatio = match($stageName) {
                             'Administrasi' => 100,
                             'Psikotes'     => 85,
@@ -108,30 +83,25 @@
                         $widthPercent = $stepDownRatio;
                     @endphp
                     <!-- Funnel Stage Bar wrapper -->
-                    <div class="w-full flex justify-center transform hover:scale-[1.03] hover:-translate-y-0.5 transition-all duration-300 relative group" style="max-width: {{ $widthPercent }}%">
-                        <!-- Outer neon glowing shadow -->
-                        <div class="absolute inset-0 bg-gradient-to-r {{ $colors['bg'] }} rounded-2xl blur-md opacity-25 group-hover:opacity-45 transition-opacity duration-300"></div>
-
+                    <div class="w-full flex justify-center transform hover:scale-[1.02] transition-all duration-300 relative group" style="max-width: {{ $widthPercent }}%">
                         <!-- The Bar itself -->
-                        <div class="w-full bg-gradient-to-r {{ $colors['bg'] }} border {{ $colors['glow'] }} rounded-2xl p-4 flex items-center justify-between shadow-lg text-white relative overflow-hidden">
+                        <div class="w-full bg-gradient-to-r {{ $colors['bg'] }} rounded-2xl p-4 flex items-center justify-between shadow-lg {{ $colors['glow'] }} text-white relative overflow-hidden">
                             <!-- Shimmer animation overlay -->
                             <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:animate-[shimmer_1.5s_infinite]"></div>
                             
                             <!-- Left: Stage Icon & Label -->
-                            <div class="flex items-center gap-3.5 relative z-10">
-                                <div class="w-10 h-10 rounded-xl bg-white/15 backdrop-blur-md flex items-center justify-center border border-white/25 shadow-inner">
-                                    {!! $colors['icon'] !!}
-                                </div>
+                            <div class="flex items-center gap-3 relative z-10">
+                                <span class="text-xl shrink-0">{{ $colors['icon'] }}</span>
                                 <div>
                                     <h4 class="text-xs sm:text-sm font-black tracking-wide">{{ $stageName }}</h4>
-                                    <span class="text-[9px] font-black text-white/70 block uppercase tracking-widest mt-0.5">{{ $stageData['label'] }}</span>
+                                    <span class="text-[9px] font-bold text-white/70 block uppercase tracking-wider">{{ $stageData['label'] }}</span>
                                 </div>
                             </div>
 
                             <!-- Right: Count & Percentage -->
                             <div class="text-right relative z-10">
-                                <span class="text-xl sm:text-2xl font-black tracking-tight">{{ $stageData['count'] }}</span>
-                                <span class="text-[9px] text-white/90 block font-extrabold tracking-wider uppercase mt-0.5">{{ $stageData['rate'] }}% Lolos</span>
+                                <span class="text-base sm:text-lg font-black">{{ $stageData['count'] }}</span>
+                                <span class="text-[10px] text-white/80 block font-bold">Kandidat ({{ $stageData['rate'] }}%)</span>
                             </div>
                         </div>
                     </div>
@@ -145,7 +115,7 @@
             <div class="bg-white border border-slate-100 rounded-2xl shadow-sm p-6 text-center">
                 <div class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Rata-rata Waktu Rekrutmen</div>
                 @if($timeToHire !== null)
-                    <div class="text-5xl font-black text-red-650">{{ $timeToHire }}</div>
+                    <div class="text-5xl font-black text-red-600">{{ $timeToHire }}</div>
                     <div class="text-slate-400 text-sm font-medium mt-1">hari</div>
                     <p class="text-xs text-slate-400 mt-3">Dihitung dari tanggal lamaran masuk sampai kandidat berstatus Hired.</p>
                 @else
@@ -181,7 +151,7 @@
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <!-- Top Candidates -->
         <div class="bg-white border border-slate-100 rounded-2xl shadow-sm p-6">
-            <h2 class="text-base font-extrabold text-slate-800 mb-4">🏆 Top Kandidat (Nilai Wawancara Tertinggi)</h2>
+            <h2 class="text-base font-extrabold text-slate-800 mb-4">🏆 Top Kandidat (Nilai Tertinggi)</h2>
             @if($topCandidates->count() > 0)
                 <div class="space-y-3">
                     @foreach($topCandidates as $index => $app)
@@ -191,12 +161,12 @@
                         @endphp
                         <div class="flex items-center gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100">
                             <span class="text-lg">{{ $medals[$index] ?? '#' . ($index + 1) }}</span>
-                            <div class="h-8 w-8 rounded-full bg-gradient-to-br from-red-500 to-red-750 flex items-center justify-center text-white font-bold text-xs shrink-0">
+                            <div class="h-8 w-8 rounded-full bg-gradient-to-br from-red-500 to-red-700 flex items-center justify-center text-white font-bold text-xs shrink-0">
                                 {{ mb_strtoupper(mb_substr($app->candidate->user->name, 0, 1)) }}
                             </div>
                             <div class="flex-1 min-w-0">
                                 <p class="text-sm font-bold text-slate-800 truncate">{{ $app->candidate->user->name }}</p>
-                                <p class="text-xs text-slate-500 font-medium">{{ $app->job_title }}</p>
+                                <p class="text-xs text-slate-500">{{ $app->job_title }}</p>
                             </div>
                             <div class="text-right shrink-0">
                                 <div class="text-sm font-extrabold text-amber-600">★ {{ number_format($avgRating, 1) }}</div>
@@ -206,7 +176,7 @@
                     @endforeach
                 </div>
             @else
-                <div class="text-center py-8 text-slate-450 italic">
+                <div class="text-center py-8 text-slate-400">
                     <p class="text-sm">Belum ada penilaian kandidat.</p>
                 </div>
             @endif
@@ -221,20 +191,20 @@
                         <div class="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-100">
                             <div>
                                 <p class="text-sm font-bold text-slate-800 truncate max-w-[180px]">{{ $pos->job_title }}</p>
-                                <p class="text-xs text-slate-550 font-medium">{{ $pos->total }} pelamar · {{ $pos->hired_count }} diterima</p>
+                                <p class="text-xs text-slate-500">{{ $pos->total }} pelamar · {{ $pos->hired_count }} diterima</p>
                             </div>
                             <div class="text-right shrink-0">
-                                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-extrabold
+                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-bold
                                     {{ $pos->success_rate >= 50 ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : ($pos->success_rate > 0 ? 'bg-amber-50 text-amber-700 border border-amber-200' : 'bg-slate-100 text-slate-500 border border-slate-200') }}">
                                     {{ $pos->success_rate }}%
                                 </span>
-                                <div class="text-[9px] font-bold text-slate-400 mt-0.5">Hired Rate</div>
+                                <div class="text-[10px] text-slate-400 mt-0.5">Hired Rate</div>
                             </div>
                         </div>
                     @endforeach
                 </div>
             @else
-                <div class="text-center py-8 text-slate-455 italic">
+                <div class="text-center py-8 text-slate-400">
                     <p class="text-sm">Belum ada data posisi.</p>
                 </div>
             @endif

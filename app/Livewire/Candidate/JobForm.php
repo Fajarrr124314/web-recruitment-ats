@@ -19,6 +19,10 @@ class JobForm extends Component
     public string $phone = '';
     public string $job_title = '';
     public string $company_name = 'Web Rekrutmen Corp';
+    public bool $isTalentPoolMode = false;
+    
+    public bool $isGlobalRegistrationDisabled = false;
+    public string $globalScheduledOpenAtIso = '';
     
     public $requirements = [];
     public $dynamicAnswers = [];
@@ -37,11 +41,45 @@ class JobForm extends Component
             return redirect()->route('login');
         }
 
+        // Run auto-activation check first
+        \App\Models\RecruitmentSetting::checkAndAutoActivate();
+
+        // Global settings check
+        $globalIsActive = \App\Models\RecruitmentSetting::getValue('is_active', '1') === '1';
+        $scheduledOpenAtVal = \App\Models\RecruitmentSetting::getValue('scheduled_open_at', '');
+        
+        $this->isGlobalRegistrationDisabled = false;
+        $this->globalScheduledOpenAtIso = '';
+
+        if ($scheduledOpenAtVal) {
+            $scheduledTime = \Illuminate\Support\Carbon::parse($scheduledOpenAtVal, 'Asia/Jakarta');
+            if ($scheduledTime->isFuture()) {
+                $this->isGlobalRegistrationDisabled = true;
+                $this->globalScheduledOpenAtIso = $scheduledTime->toIso8601String();
+            }
+        } else {
+            if (!$globalIsActive) {
+                $this->isGlobalRegistrationDisabled = true;
+            }
+        }
+
         $this->requirements = RecruitmentRequirement::where('is_active', true)->orderBy('order')->get();
-        $this->jobPositions = JobPosition::where('is_active', true)->orderBy('title')->get();
+        
+        // Filter jobs that are active and have not expired yet
+        $this->jobPositions = JobPosition::where('is_active', true)
+            ->where(function($q) {
+                $q->whereNull('expires_at')
+                  ->orWhere('expires_at', '>', now());
+            })
+            ->orderBy('title')
+            ->get();
         
         if ($this->jobPositions->isNotEmpty()) {
             $this->job_title = $this->jobPositions->first()->title;
+            $this->isTalentPoolMode = false;
+        } else {
+            $this->job_title = 'Talent Pool Umum';
+            $this->isTalentPoolMode = true;
         }
 
         // Check if candidate profile already exists
@@ -63,9 +101,9 @@ class JobForm extends Component
                 $this->job_title = $app->job_title;
                 foreach ($app->answers as $ans) {
                     if ($ans->requirement->type === 'file') {
-                        $this->existingFiles[$ans->requirement->id] = $ans->answer_text;
+                        $this->existingFiles[$ans->requirement->id] = $ans->answer;
                     } else {
-                        $this->dynamicAnswers[$ans->requirement->id] = $ans->answer_text;
+                        $this->dynamicAnswers[$ans->requirement->id] = $ans->answer;
                     }
                 }
                 $this->existingApplication = null;
@@ -73,6 +111,21 @@ class JobForm extends Component
                 $this->existingApplication = $app;
             }
         }
+    }
+
+    public function getSelectedJob()
+    {
+        if ($this->isTalentPoolMode) {
+            return null;
+        }
+        return JobPosition::where('title', $this->job_title)->first();
+    }
+
+    public function selectJob(string $title)
+    {
+        $this->job_title = $title;
+        $this->isTalentPoolMode = ($title === 'Talent Pool Umum');
+        $this->saveDraft();
     }
 
     public function updated($propertyName)

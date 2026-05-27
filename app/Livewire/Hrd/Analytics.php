@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 
-class Overview extends Component
+class Analytics extends Component
 {
     public function mount()
     {
@@ -30,12 +30,24 @@ class Overview extends Component
         $rejectionRate = $totalCandidates > 0 ? round(($totalRejected / $totalCandidates) * 100, 1) : 0;
 
         // 2. Cumulative Recruitment Funnel Data
+        // To build a realistic funnel, we calculate cumulative pass-through counts:
+        // - Administrasi: All applicants (active + hired + rejected)
+        // - Psikotes: Those who successfully passed Administrasi (status in Psikotes, Interview, MCU, Hired)
+        // - Interview: Those who passed Psikotes (status in Interview, MCU, Hired)
+        // - MCU: Those who passed Interview (status in MCU, Hired)
+        // - Hired: Those who successfully passed MCU (status in Hired)
+        
         $administrasiCount = Application::where('status', '!=', 'Draft')->count();
+        
         $psikotesCount = Application::whereIn('status', ['Psikotes', 'Interview', 'MCU', 'Hired'])->count();
+        
         $interviewCount = Application::whereIn('status', ['Interview', 'MCU', 'Hired'])->count();
+        
         $mcuCount = Application::whereIn('status', ['MCU', 'Hired'])->count();
+        
         $hiredCount = Application::where('status', 'Hired')->count();
 
+        // Calculate stage-to-stage conversion rates (persentase kelolosan)
         $conversionRates = [
             'Administrasi' => [
                 'count' => $administrasiCount,
@@ -69,7 +81,9 @@ class Overview extends Component
             ],
         ];
 
-        // 3. Average Time-to-Hire
+        // 3. Average Time-to-Hire (Durasi Rekrutmen dalam Hari)
+        // Calculated as avg(updated_at - created_at) in days for hired candidates
+        // We use TIMESTAMPDIFF for MySQL/MariaDB compatibilities
         $avgTimeToHire = Application::where('status', 'Hired')
             ->selectRaw('AVG(TIMESTAMPDIFF(DAY, created_at, updated_at)) as avg_days')
             ->first()
@@ -101,7 +115,7 @@ class Overview extends Component
                 return $pos;
             });
 
-        return view('livewire.hrd.overview', [
+        return view('livewire.hrd.analytics', [
             'totalCandidates' => $totalCandidates,
             'totalHired' => $totalHired,
             'totalRejected' => $totalRejected,
