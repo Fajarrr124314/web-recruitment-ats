@@ -378,8 +378,9 @@ class Dashboard extends Component
         $app = Application::find($id);
         if ($app) {
             $name = $app->candidate->user->name;
-            $app->delete();
-            session()->flash('board_success', "Data kandidat {$name} telah dihapus permanen.");
+            $app->update(['is_archived' => true]);
+            $this->logActivity($id, 'deleted', "Mengarsipkan data kandidat {$name} (dihapus dari papan kanban)");
+            session()->flash('board_success', "Data kandidat {$name} telah diarsipkan.");
             if ($this->selectedApplicationId === $id) {
                 $this->closeDetails();
             }
@@ -487,10 +488,16 @@ class Dashboard extends Component
 
         $count = count($this->selectedApplications);
         
-        // Remove from database
-        Application::whereIn('id', $this->selectedApplications)->delete();
+        foreach ($this->selectedApplications as $appId) {
+            $app = Application::find($appId);
+            if ($app) {
+                $this->logActivity($appId, 'deleted', "Mengarsipkan data kandidat {$app->candidate->user->name} secara massal");
+            }
+        }
 
-        session()->flash('board_success', "{$count} data kandidat berhasil dihapus secara massal.");
+        Application::whereIn('id', $this->selectedApplications)->update(['is_archived' => true]);
+
+        session()->flash('board_success', "{$count} data kandidat berhasil diarsipkan secara massal.");
         $this->selectedApplications = [];
     }
 
@@ -840,6 +847,7 @@ class Dashboard extends Component
         $query = Application::with(['candidate.user', 'interviewScores.interviewer'])
             ->withAvg('interviewScores', 'rating')
             ->where('status', '!=', 'Draft')
+            ->where('is_archived', false)
             ->where(function($q) {
                 $q->whereNot(function($inner) {
                     $inner->whereHas('candidate.user', function($uq) {
@@ -880,6 +888,7 @@ class Dashboard extends Component
             // Count total candidates overall for progress calculation
             $totalActiveCandidates = Application::whereIn('status', ['Administrasi', 'Psikotes', 'Interview', 'MCU'])
                 ->where('status', '!=', 'Draft')
+                ->where('is_archived', false)
                 ->where(function($q) {
                     $q->whereNot(function($inner) {
                         $inner->whereHas('candidate.user', function($uq) {
@@ -902,6 +911,7 @@ class Dashboard extends Component
                 // Base filter query
                 $baseQuery = Application::where('status', $status)
                     ->where('status', '!=', 'Draft')
+                    ->where('is_archived', false)
                     ->where(function($q) {
                         $q->whereNot(function($inner) {
                             $inner->whereHas('candidate.user', function($uq) {

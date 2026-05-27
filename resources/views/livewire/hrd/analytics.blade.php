@@ -1,16 +1,34 @@
 <div class="max-w-7xl mx-auto py-4 sm:py-8 space-y-8">
-    <!-- Header -->
+    <!-- Header Block with premium styling exactly matching activity logs -->
     <div class="bg-gradient-to-r from-slate-900 via-slate-800 to-red-950 p-6 rounded-3xl border border-slate-700/50 shadow-2xl relative overflow-hidden">
+        <!-- Background Glow -->
         <div class="absolute -right-24 -top-24 w-52 h-52 bg-red-500/20 rounded-full blur-3xl"></div>
         <div class="absolute -left-24 -bottom-24 w-52 h-52 bg-slate-500/20 rounded-full blur-3xl"></div>
-        <div class="relative z-10">
-            <div class="flex items-center gap-2 mb-2">
-                <span class="px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-red-500 text-white">
-                    Rekap & Analitik
-                </span>
+
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
+            <div class="space-y-2">
+                <div class="flex items-center gap-2">
+                    <span class="px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-red-500 text-white shadow-lg shadow-red-500/20 animate-pulse">
+                        Rekap & Analitik
+                    </span>
+                    <span class="px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-slate-700 text-slate-300">
+                        Analitik Sistem
+                    </span>
+                </div>
+                <h1 class="text-2xl md:text-3xl font-extrabold text-white tracking-tight">
+                    Analitik Rekrutmen & Ringkasan ATS
+                </h1>
+                <p class="text-slate-300 text-sm max-w-2xl leading-relaxed">
+                    Ringkasan data statistik funnel rekrutmen, tingkat penerimaan, dan performa kandidat secara menyeluruh. Terintegrasi secara real-time.
+                </p>
             </div>
-            <h1 class="text-2xl md:text-3xl font-extrabold text-white tracking-tight">Analitik Rekrutmen</h1>
-            <p class="text-slate-300 text-sm mt-1 max-w-2xl">Ringkasan data statistik funnel rekrutmen, tingkat penerimaan, dan performa kandidat secara menyeluruh.</p>
+
+            <!-- A premium total candidate widget matching activity logs counter -->
+            <div class="bg-white/10 backdrop-blur-md border border-white/10 p-4 rounded-2xl text-center shrink-0 min-w-[120px] shadow-inner">
+                <div class="text-xs text-slate-400 font-bold uppercase tracking-wider">Total Pelamar</div>
+                <div class="text-3xl font-extrabold text-white mt-1">{{ $totalCandidates }}</div>
+                <div class="text-[10px] text-slate-400 mt-0.5">kandidat</div>
+            </div>
         </div>
     </div>
 

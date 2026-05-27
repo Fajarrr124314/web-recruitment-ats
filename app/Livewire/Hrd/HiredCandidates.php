@@ -66,8 +66,14 @@ class HiredCandidates extends Component
         $app = Application::find($id);
         if ($app) {
             $name = $app->candidate->user->name;
-            $app->delete();
-            session()->flash('board_success', "Data karyawan {$name} telah dihapus.");
+            $app->update(['is_archived' => true]);
+            \App\Models\RecruiterActivityLog::create([
+                'user_id' => auth()->id(),
+                'application_id' => $id,
+                'action' => 'deleted',
+                'description' => "Mengarsipkan data karyawan {$name} (dihapus dari karyawan diterima)",
+            ]);
+            session()->flash('board_success', "Data karyawan {$name} telah diarsipkan.");
             if ($this->selectedApplicationId === $id) {
                 $this->closeDetails();
             }
@@ -100,9 +106,22 @@ class HiredCandidates extends Component
         }
 
         $count = count($this->selectedApplications);
-        Application::whereIn('id', $this->selectedApplications)->delete();
+        
+        foreach ($this->selectedApplications as $appId) {
+            $app = Application::find($appId);
+            if ($app) {
+                \App\Models\RecruiterActivityLog::create([
+                    'user_id' => auth()->id(),
+                    'application_id' => $appId,
+                    'action' => 'deleted',
+                    'description' => "Mengarsipkan data karyawan {$app->candidate->user->name} secara massal",
+                ]);
+            }
+        }
 
-        session()->flash('board_success', "{$count} data karyawan Hired berhasil dihapus secara massal.");
+        Application::whereIn('id', $this->selectedApplications)->update(['is_archived' => true]);
+
+        session()->flash('board_success', "{$count} data karyawan Hired berhasil diarsipkan secara massal.");
         $this->selectedApplications = [];
 
         if ($this->selectedApplicationId && !Application::find($this->selectedApplicationId)) {
@@ -241,6 +260,7 @@ class HiredCandidates extends Component
     {
         $query = Application::with(['candidate.user', 'interviewScores'])
             ->where('status', 'Hired')
+            ->where('is_archived', false)
             ->when($this->search, function($q) {
                 $q->whereHas('candidate.user', function($uq) {
                     $uq->where('name', 'like', '%' . $this->search . '%')

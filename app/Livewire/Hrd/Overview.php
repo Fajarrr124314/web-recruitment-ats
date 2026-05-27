@@ -22,9 +22,9 @@ class Overview extends Component
     {
         // 1. General Metrics
         $totalCandidates = Application::where('status', '!=', 'Draft')->count();
-        $totalHired = Application::where('status', 'Hired')->count();
-        $totalRejected = Application::where('status', 'Ditolak')->count();
-        $totalActive = Application::whereNotIn('status', ['Hired', 'Ditolak', 'Draft'])->count();
+        $totalHired = Application::where('status', 'Hired')->where('is_archived', false)->count();
+        $totalRejected = Application::where('status', 'Ditolak')->where('is_archived', false)->count();
+        $totalActive = Application::whereNotIn('status', ['Hired', 'Ditolak', 'Draft'])->where('is_archived', false)->count();
 
         $acceptanceRate = $totalCandidates > 0 ? round(($totalHired / $totalCandidates) * 100, 1) : 0;
         $rejectionRate = $totalCandidates > 0 ? round(($totalRejected / $totalCandidates) * 100, 1) : 0;
@@ -34,7 +34,7 @@ class Overview extends Component
         $psikotesCount = Application::whereIn('status', ['Psikotes', 'Interview', 'MCU', 'Hired'])->count();
         $interviewCount = Application::whereIn('status', ['Interview', 'MCU', 'Hired'])->count();
         $mcuCount = Application::whereIn('status', ['MCU', 'Hired'])->count();
-        $hiredCount = Application::where('status', 'Hired')->count();
+        $hiredCount = Application::where('status', 'Hired')->where('is_archived', false)->count();
 
         $conversionRates = [
             'Administrasi' => [

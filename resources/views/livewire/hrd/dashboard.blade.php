@@ -168,7 +168,7 @@
         @endphp
 
         <!-- Premium Glassmorphic Wide Greeting Card -->
-        <div class="relative overflow-hidden rounded-3xl border {{ $borderColor }} bg-gradient-to-r {{ $gradient }} backdrop-blur-xl p-6 sm:p-8 mb-8 shadow-xl {{ $glowColor }} flex flex-col md:flex-row items-center justify-between gap-6 transition-all duration-300 hover:shadow-2xl">
+        <div class="relative overflow-hidden rounded-3xl border {{ $borderColor }} bg-gradient-to-r {{ $gradient }} backdrop-blur-xl p-6 sm:p-8 mb-8 shadow-xl {{ $glowColor }} flex flex-col md:flex-row items-center justify-between gap-6 transition-all duration-150 hover:shadow-2xl">
             <!-- Shimmer effect -->
             <div class="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:24px_24px] opacity-40"></div>
             <div class="absolute -right-24 -top-24 w-60 h-60 bg-gradient-to-br from-red-500/10 to-orange-500/10 rounded-full blur-3xl pointer-events-none"></div>

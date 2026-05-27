@@ -295,8 +295,9 @@ class CandidateStage extends Component
         $app = Application::find($id);
         if ($app) {
             $name = $app->candidate->user->name;
-            $app->delete();
-            session()->flash('stage_success', "Data kandidat {$name} telah dihapus permanen.");
+            $app->update(['is_archived' => true]);
+            $this->logActivity($id, 'deleted', "Mengarsipkan data kandidat {$name} (dihapus dari papan)");
+            session()->flash('stage_success', "Data kandidat {$name} telah diarsipkan.");
             if ($this->selectedApplicationId === $id) {
                 $this->closeDetails();
             }
@@ -404,10 +405,16 @@ class CandidateStage extends Component
 
         $count = count($this->selectedApplications);
         
-        // Remove from database
-        Application::whereIn('id', $this->selectedApplications)->delete();
+        foreach ($this->selectedApplications as $appId) {
+            $app = Application::find($appId);
+            if ($app) {
+                $this->logActivity($appId, 'deleted', "Mengarsipkan data kandidat {$app->candidate->user->name} secara massal");
+            }
+        }
 
-        session()->flash('stage_success', "{$count} data kandidat berhasil dihapus secara massal.");
+        Application::whereIn('id', $this->selectedApplications)->update(['is_archived' => true]);
+
+        session()->flash('stage_success', "{$count} data kandidat berhasil diarsipkan secara massal.");
         $this->selectedApplications = [];
     }
 
@@ -757,6 +764,7 @@ class CandidateStage extends Component
             ->withAvg('interviewScores', 'rating')
             ->where('status', $this->stage)
             ->where('status', '!=', 'Draft')
+            ->where('is_archived', false)
             ->when($this->jobTitleFilter, function($q) {
                 $q->where('job_title', $this->jobTitleFilter);
             })
