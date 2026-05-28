@@ -8,12 +8,11 @@ use App\Models\JobPosition;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use Livewire\Component;
+use Livewire\Attributes\On;
 
 class Dashboard extends Component
 {
-    public ?int $selectedApplicationId = null;
     public string $activeMobileTab = 'Administrasi';
-    public bool $showCalendar = false;
     
     public array $templates = [
         'psikotes' => [
@@ -38,10 +37,6 @@ class Dashboard extends Component
         ],
     ];
 
-    public string $selectedTemplateType = 'umum';
-    public string $messageText = '';
-    public string $emailSubject = '';
-
     // Bulk Notifications State
     public bool $showBulkModal = false;
     public string $bulkTemplateType = 'umum';
@@ -56,19 +51,6 @@ class Dashboard extends Component
     public string $gmailBody = '';
     public string $gmailTemplateType = 'umum';
     
-    public int $rating = 5;
-    public string $ratingNotes = '';
-
-    // Structured Rubric Evaluation Ratings (Scale 1-5)
-    public int $technicalRating = 3;
-    public int $communicationRating = 3;
-    public int $problemSolvingRating = 3;
-    public int $cultureFitRating = 3;
-
-    // Reject Modal State
-    public bool $showRejectModal = false;
-    public string $rejectReason = '';
-
     // Bulk Reject Modal State
     public bool $showBulkRejectModal = false;
     public string $bulkRejectReason = '';
@@ -94,98 +76,15 @@ class Dashboard extends Component
     ];
     public int $tableLimit = 20;
 
-    // Calendar & Notes Component State
-    public int $calendarYear;
-    public int $calendarMonth;
-    public string $newNoteText = '';
-    public string $selectedDate = '';
-    public array $notes = [];
-    public string $floatingReminder = '';
-
     public function mount()
     {
         $user = Auth::user();
         if (!$user || !$user->isHrd()) {
             return redirect()->route('login');
         }
-
-        // Initialize Calendar
-        $this->calendarYear = (int) now()->year;
-        $this->calendarMonth = (int) now()->month;
-        $this->loadCalendarNotes();
-        $this->checkTodayNotes();
     }
 
-    public function loadCalendarNotes()
-    {
-        $notesVal = \App\Models\RecruitmentSetting::getValue('calendar_notes', '[]');
-        $this->notes = json_decode($notesVal, true) ?: [];
-    }
 
-    public function saveCalendarNotes()
-    {
-        \App\Models\RecruitmentSetting::setValue('calendar_notes', json_encode($this->notes));
-    }
-
-    public function selectCalendarDate($date)
-    {
-        $this->selectedDate = $date;
-        $this->newNoteText = '';
-    }
-
-    public function addCalendarNote()
-    {
-        if (!$this->selectedDate) return;
-        
-        if (empty($this->newNoteText)) return;
-
-        if (!isset($this->notes[$this->selectedDate])) {
-            $this->notes[$this->selectedDate] = [];
-        }
-        $this->notes[$this->selectedDate][] = $this->newNoteText;
-        $this->saveCalendarNotes();
-        
-        $this->newNoteText = '';
-        $this->floatingReminder = "Catatan berhasil ditambahkan pada tanggal " . $this->selectedDate;
-    }
-
-    public function removeCalendarNote($date, $index)
-    {
-        if (isset($this->notes[$date][$index])) {
-            unset($this->notes[$date][$index]);
-            $this->notes[$date] = array_values($this->notes[$date]);
-            if (empty($this->notes[$date])) {
-                unset($this->notes[$date]);
-            }
-            $this->saveCalendarNotes();
-        }
-    }
-
-    public function prevMonth()
-    {
-        $this->calendarMonth--;
-        if ($this->calendarMonth < 1) {
-            $this->calendarMonth = 12;
-            $this->calendarYear--;
-        }
-    }
-
-    public function nextMonth()
-    {
-        $this->calendarMonth++;
-        if ($this->calendarMonth > 12) {
-            $this->calendarMonth = 1;
-            $this->calendarYear++;
-        }
-    }
-
-    public function checkTodayNotes()
-    {
-        $today = now()->format('Y-m-d');
-        if (isset($this->notes[$today]) && count($this->notes[$today]) > 0) {
-            $this->floatingReminder = "Pengingat Hari Ini: " . implode(', ', $this->notes[$today]);
-        }
-    }
 
     public function updatedSearch() { $this->resetLimits(); }
     public function updatedJobTitleFilter() { $this->resetLimits(); }
@@ -303,86 +202,14 @@ class Dashboard extends Component
 
     public function selectApplication(int $id)
     {
-        $this->selectedApplicationId = $id;
-        $this->rating = 5;
-        $this->ratingNotes = '';
-        $this->technicalRating = 3;
-        $this->communicationRating = 3;
-        $this->problemSolvingRating = 3;
-        $this->cultureFitRating = 3;
-        $this->showRejectModal = false;
-        $this->rejectReason = '';
-        
-        $app = Application::find($id);
-        if ($app) {
-            $stageSlug = strtolower($app->status);
-            if (array_key_exists($stageSlug, $this->templates)) {
-                $this->selectedTemplateType = $stageSlug;
-            } else {
-                $this->selectedTemplateType = 'umum';
-            }
-        } else {
-            $this->selectedTemplateType = 'umum';
-        }
-        
-        $this->updateMessageText();
+        $this->dispatch('show-candidate-details', applicationId: $id);
     }
 
-    public function closeDetails()
+    #[On('refresh-board')]
+    public function refreshBoard(?string $stageSuccess = null)
     {
-        $this->selectedApplicationId = null;
-        $this->showRejectModal = false;
-    }
-
-    public function changeStatus(int $id, string $newStatus)
-    {
-        $allowedStatuses = ['Administrasi', 'Psikotes', 'Interview', 'MCU', 'Hired'];
-        if (!in_array($newStatus, $allowedStatuses)) {
-            return;
-        }
-        $application = Application::find($id);
-        if ($application) {
-            $application->update([
-                'status' => $newStatus,
-                'rejection_reason' => null,
-                'rejected_at' => null,
-            ]);
-            $this->logActivity($id, 'status_change', "Memindahkan status kandidat ke: {$newStatus}");
-            session()->flash('board_success', "Status {$application->candidate->user->name} dipindahkan ke {$newStatus}");
-        }
-    }
-
-    public function openRejectModal()
-    {
-        $this->showRejectModal = true;
-        $this->rejectReason = '';
-    }
-
-    public function closeRejectModal()
-    {
-        $this->showRejectModal = false;
-    }
-
-    public function rejectCandidate()
-    {
-        $this->validate([
-            'rejectReason' => 'required|string|min:5|max:1000'
-        ], [
-            'rejectReason.required' => 'Alasan gagal / tidak lolos wajib diisi agar kandidat tahu evaluasinya.'
-        ]);
-
-        if ($this->selectedApplicationId) {
-            $app = Application::find($this->selectedApplicationId);
-            if ($app) {
-                $app->update([
-                    'status' => 'Ditolak',
-                    'rejection_reason' => $this->rejectReason,
-                    'rejected_at' => now(),
-                ]);
-                $this->logActivity($app->id, 'rejected', "Menolak kandidat dengan alasan: \"{$this->rejectReason}\"");
-                session()->flash('board_success', "Kandidat {$app->candidate->user->name} ditandai sebagai Tidak Lolos.");
-                $this->closeDetails();
-            }
+        if ($stageSuccess) {
+            session()->flash('board_success', $stageSuccess);
         }
     }
 
@@ -525,174 +352,7 @@ class Dashboard extends Component
         }
     }
 
-    public function submitAssessment()
-    {
-        $this->validate([
-            'technicalRating'      => 'required|integer|min:1|max:5',
-            'communicationRating'  => 'required|integer|min:1|max:5',
-            'problemSolvingRating' => 'required|integer|min:1|max:5',
-            'cultureFitRating'     => 'required|integer|min:1|max:5',
-            'ratingNotes'          => 'nullable|string|max:1000',
-        ]);
 
-        if (!$this->selectedApplicationId) {
-            return;
-        }
-
-        // Tentukan stage dari status aplikasi saat ini
-        $app = Application::find($this->selectedApplicationId);
-        $currentStage = $app?->status ?? 'Interview';
-
-        // Ambil label dimensi aktual untuk log yang informatif
-        $dims = \App\Support\StageRubric::getDimensions($currentStage);
-
-        // Hitung rata-rata dari 4 dimensi rubrik
-        $avgRating = round(
-            ($this->technicalRating + $this->communicationRating + $this->problemSolvingRating + $this->cultureFitRating) / 4
-        );
-
-        InterviewScore::create([
-            'application_id'         => $this->selectedApplicationId,
-            'interviewer_id'         => Auth::id(),
-            'rating'                 => $avgRating,
-            'notes'                  => $this->ratingNotes,
-            'stage'                  => $currentStage,
-            'technical_rating'       => $this->technicalRating,
-            'communication_rating'   => $this->communicationRating,
-            'problem_solving_rating' => $this->problemSolvingRating,
-            'culture_fit_rating'     => $this->cultureFitRating,
-        ]);
-
-        $logDetail = "[{$currentStage}] {$dims[0]['label']}={$this->technicalRating} | {$dims[1]['label']}={$this->communicationRating} | {$dims[2]['label']}={$this->problemSolvingRating} | {$dims[3]['label']}={$this->cultureFitRating} (Avg: ★{$avgRating})";
-        if ($this->ratingNotes) {
-            $logDetail .= " | Catatan: \"{$this->ratingNotes}\"";
-        }
-        $this->logActivity($this->selectedApplicationId, 'scoring', $logDetail);
-
-        $this->rating = $avgRating;
-        $this->technicalRating = 3;
-        $this->communicationRating = 3;
-        $this->problemSolvingRating = 3;
-        $this->cultureFitRating = 3;
-        $this->ratingNotes = '';
-        session()->flash('rating_success', "Penilaian tahap {$currentStage} berhasil disimpan!");
-    }
-
-    public function updatedSelectedTemplateType()
-    {
-        $this->updateMessageText();
-    }
-
-    public function updateMessageText()
-    {
-        if ($this->selectedApplicationId) {
-            $app = Application::with('candidate.user')->find($this->selectedApplicationId);
-            if ($app) {
-                $tpl = $this->templates[$this->selectedTemplateType] ?? $this->templates['umum'];
-                $this->messageText = $this->parsePlaceholders($tpl['body'], $app);
-                $this->emailSubject = $this->parsePlaceholders($tpl['subject'], $app);
-            }
-        }
-    }
-
-    public function parsePlaceholders(string $text, Application $app): string
-    {
-        $candidateName = $app->candidate->user->name;
-        $jobTitle = $app->job_title;
-        $companyName = $app->company_name ?? config('app.name', 'Perusahaan');
-        
-        $search = ['[Nama Kandidat]', '[Posisi Dilamar]', '[Nama Perusahaan]'];
-        $replace = [$candidateName, $jobTitle, $companyName];
-        
-        return str_replace($search, $replace, $text);
-    }
-
-    public function getWhatsappUrl(Application $application, ?string $customMessage = null): string
-    {
-        $phone = $application->candidate->phone;
-        $phoneClean = preg_replace('/[^0-9]/', '', $phone);
-        if (strpos($phoneClean, '0') === 0) {
-            $phoneClean = '62' . substr($phoneClean, 1);
-        }
-        
-        $msg = $customMessage ?? $this->messageText;
-        if (empty($msg)) {
-            $tpl = $this->templates[$this->selectedTemplateType] ?? $this->templates['umum'];
-            $msg = $this->parsePlaceholders($tpl['body'], $application);
-        }
-        
-        return 'https://wa.me/' . $phoneClean . '?text=' . urlencode($msg);
-    }
-
-    public function sendSingleEmail()
-    {
-        if (!$this->selectedApplicationId) {
-            return;
-        }
-
-        $app = Application::with(['candidate.user', 'answers.requirement'])->find($this->selectedApplicationId);
-        if (!$app) {
-            return;
-        }
-
-        $this->validate([
-            'messageText' => 'required|string',
-            'emailSubject' => 'required|string',
-        ], [
-            'messageText.required' => 'Isi pesan tidak boleh kosong.',
-            'emailSubject.required' => 'Subjek email tidak boleh kosong.',
-        ]);
-
-        try {
-            $email = $this->getSingleCandidateEmail($app);
-            $subject = $this->emailSubject;
-            $body = $this->messageText;
-
-            Mail::raw($body, function ($message) use ($email, $subject) {
-                $message->to($email)
-                    ->subject($subject);
-            });
-
-            session()->flash('notification_success', "Email berhasil dikirim ke {$email}!");
-        } catch (\Exception $e) {
-            session()->flash('notification_error', "Gagal mengirim email: " . $e->getMessage());
-        }
-    }
-
-    public function getSingleCandidateEmail(Application $app): string
-    {
-        // Cari jawaban yang pertanyaannya mengandung kata 'email'
-        $emailAnswer = $app->answers
-            ->first(fn($ans) => stripos($ans->requirement->question ?? '', 'email') !== false);
-
-        if ($emailAnswer && filter_var(trim($emailAnswer->answer), FILTER_VALIDATE_EMAIL)) {
-            return trim($emailAnswer->answer);
-        }
-
-        // Fallback ke email akun user
-        return $app->candidate?->user?->email ?? '';
-    }
-
-    public function getGmailUrl(Application $application): string
-    {
-        $email = $this->getSingleCandidateEmail($application);
-        
-        $msg = $this->messageText;
-        if (empty($msg)) {
-            $tpl = $this->templates[$this->selectedTemplateType] ?? $this->templates['umum'];
-            $msg = $tpl['body'];
-        }
-        $msgParsed = $this->parsePlaceholders($msg, $application);
-        
-        $subject = $this->emailSubject;
-        if (empty($subject)) {
-            $tpl = $this->templates[$this->selectedTemplateType] ?? $this->templates['umum'];
-            $subject = $tpl['subject'];
-        }
-        $subjectParsed = $this->parsePlaceholders($subject, $application);
-        
-        return 'https://mail.google.com/mail/?view=cm&fs=1&to=' . urlencode($email) . '&su=' . urlencode($subjectParsed) . '&body=' . urlencode($msgParsed);
-    }
 
     public function openBulkModal()
     {
@@ -726,6 +386,30 @@ class Dashboard extends Component
         if (!in_array($appId, $this->sentWhatsappIds)) {
             $this->sentWhatsappIds[] = $appId;
         }
+    }
+
+    public function getSingleCandidateEmail(Application $app): string
+    {
+        $emailAnswer = $app->answers
+            ->first(fn($ans) => stripos($ans->requirement->question ?? '', 'email') !== false);
+
+        if ($emailAnswer && filter_var(trim($emailAnswer->answer), FILTER_VALIDATE_EMAIL)) {
+            return trim($emailAnswer->answer);
+        }
+
+        return $app->candidate?->user?->email ?? '';
+    }
+
+    public function parsePlaceholders(string $text, Application $app): string
+    {
+        $candidateName = $app->candidate->user->name;
+        $jobTitle = $app->job_title;
+        $companyName = $app->company_name ?? config('app.name', 'Perusahaan');
+        
+        $search = ['[Nama Kandidat]', '[Posisi Dilamar]', '[Nama Perusahaan]'];
+        $replace = [$candidateName, $jobTitle, $companyName];
+        
+        return str_replace($search, $replace, $text);
     }
 
     public function sendBulkEmails()
@@ -1014,18 +698,6 @@ class Dashboard extends Component
             $hasMoreTable = $totalTableCount > $this->tableLimit;
         }
 
-        $selectedApplication = $this->selectedApplicationId
-            ? Application::with(['candidate.user', 'interviewScores.interviewer', 'answers.requirement', 'activityLogs'])->find($this->selectedApplicationId)
-            : null;
-
-        // Stage-specific rubric computation
-        $currentStage    = $selectedApplication?->status ?? 'Interview';
-        $stageDimensions = \App\Support\StageRubric::getDimensions($currentStage);
-        $sliderDimensions = \App\Support\StageRubric::getSliderDimensions($currentStage, $this);
-        $stageScores = $selectedApplication
-            ? $selectedApplication->interviewScores->filter(fn($s) => !$s->stage || $s->stage === $currentStage)
-            : collect();
-
         $activeJobCount = JobPosition::where('is_active', true)->count();
         $totalCandidatesCount = Application::where('status', '!=', 'Draft')->count();
         $todayApplicationsCount = Application::where('status', '!=', 'Draft')->whereDate('created_at', \Carbon\Carbon::today('Asia/Jakarta'))->count();
@@ -1036,12 +708,7 @@ class Dashboard extends Component
             'hasMore'             => $hasMore,
             'hasMoreTable'        => $hasMoreTable,
             'stageSummaries'      => $stageSummaries,
-            'selectedApplication' => $selectedApplication,
             'availableJobTitles'  => JobPosition::where('is_active', true)->pluck('title'),
-            'currentStage'        => $currentStage,
-            'stageDimensions'     => $stageDimensions,
-            'sliderDimensions'    => $sliderDimensions,
-            'stageScores'         => $stageScores,
             'activeJobCount'      => $activeJobCount,
             'totalCandidatesCount'=> $totalCandidatesCount,
             'todayApplicationsCount' => $todayApplicationsCount,

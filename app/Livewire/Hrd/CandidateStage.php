@@ -9,13 +9,13 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use Livewire\Component;
 use Livewire\WithPagination;
+use Livewire\Attributes\On;
 
 class CandidateStage extends Component
 {
     use WithPagination;
 
     public string $stage = ''; // Active stage name (mapped from route)
-    public ?int $selectedApplicationId = null;
     
     public array $templates = [
         'psikotes' => [
@@ -40,10 +40,6 @@ class CandidateStage extends Component
         ],
     ];
 
-    public string $selectedTemplateType = 'umum';
-    public string $messageText = '';
-    public string $emailSubject = '';
-
     // Bulk Notifications State
     public bool $showBulkModal = false;
     public string $bulkTemplateType = 'umum';
@@ -57,19 +53,6 @@ class CandidateStage extends Component
     public string $gmailSubject = '';
     public string $gmailBody = '';
     public string $gmailTemplateType = 'umum';
-    
-    public int $rating = 5;
-    public string $ratingNotes = '';
-
-    // Structured Rubric Evaluation Ratings (Scale 1-5)
-    public int $technicalRating = 3;
-    public int $communicationRating = 3;
-    public int $problemSolvingRating = 3;
-    public int $cultureFitRating = 3;
-
-    // Reject Modal State
-    public bool $showRejectModal = false;
-    public string $rejectReason = '';
 
     // Bulk Reject Modal State
     public bool $showBulkRejectModal = false;
@@ -210,30 +193,15 @@ class CandidateStage extends Component
 
     public function selectApplication(int $id)
     {
-        $this->selectedApplicationId = $id;
-        $this->rating = 5;
-        $this->ratingNotes = '';
-        $this->technicalRating = 3;
-        $this->communicationRating = 3;
-        $this->problemSolvingRating = 3;
-        $this->cultureFitRating = 3;
-        $this->showRejectModal = false;
-        $this->rejectReason = '';
-        
-        $stageSlug = strtolower($this->stage);
-        if (array_key_exists($stageSlug, $this->templates)) {
-            $this->selectedTemplateType = $stageSlug;
-        } else {
-            $this->selectedTemplateType = 'umum';
-        }
-        
-        $this->updateMessageText();
+        $this->dispatch('show-candidate-details', applicationId: $id, stage: $this->stage);
     }
 
-    public function closeDetails()
+    #[On('refresh-board')]
+    public function refreshBoard(?string $stageSuccess = null)
     {
-        $this->selectedApplicationId = null;
-        $this->showRejectModal = false;
+        if ($stageSuccess) {
+            session()->flash('stage_success', $stageSuccess);
+        }
     }
 
     public function changeStatus(int $id, string $newStatus)
@@ -254,46 +222,6 @@ class CandidateStage extends Component
             
             // If moved, deselect from current page
             $this->selectedApplications = array_diff($this->selectedApplications, [$id]);
-            if ($this->selectedApplicationId === $id) {
-                $this->closeDetails();
-            }
-        }
-    }
-
-    public function openRejectModal()
-    {
-        $this->showRejectModal = true;
-        $this->rejectReason = '';
-    }
-
-    public function closeRejectModal()
-    {
-        $this->showRejectModal = false;
-    }
-
-    public function rejectCandidate()
-    {
-        $this->validate([
-            'rejectReason' => 'required|string|min:5|max:1000'
-        ], [
-            'rejectReason.required' => 'Alasan gagal / tidak lolos wajib diisi agar kandidat tahu evaluasinya.'
-        ]);
-
-        if ($this->selectedApplicationId) {
-            $app = Application::find($this->selectedApplicationId);
-            if ($app) {
-                $app->update([
-                    'status' => 'Ditolak',
-                    'rejection_reason' => $this->rejectReason,
-                    'rejected_at' => now(),
-                ]);
-                $this->logActivity($app->id, 'rejected', "Menolak kandidat dengan alasan: \"{$this->rejectReason}\"");
-                session()->flash('stage_success', "Kandidat {$app->candidate->user->name} ditandai sebagai Tidak Lolos.");
-                
-                // Deselect if rejected
-                $this->selectedApplications = array_diff($this->selectedApplications, [$this->selectedApplicationId]);
-                $this->closeDetails();
-            }
         }
     }
 
@@ -436,73 +364,16 @@ class CandidateStage extends Component
         }
     }
 
-    public function submitAssessment()
+    public function getSingleCandidateEmail(Application $app): string
     {
-        $this->validate([
-            'technicalRating'      => 'required|integer|min:1|max:5',
-            'communicationRating'  => 'required|integer|min:1|max:5',
-            'problemSolvingRating' => 'required|integer|min:1|max:5',
-            'cultureFitRating'     => 'required|integer|min:1|max:5',
-            'ratingNotes'          => 'nullable|string|max:1000',
-        ]);
+        $emailAnswer = $app->answers
+            ->first(fn($ans) => stripos($ans->requirement->question ?? '', 'email') !== false);
 
-        if (!$this->selectedApplicationId) {
-            return;
+        if ($emailAnswer && filter_var(trim($emailAnswer->answer), FILTER_VALIDATE_EMAIL)) {
+            return trim($emailAnswer->answer);
         }
 
-        // Stage sudah jelas dari context halaman ini
-        $currentStage = $this->stage;
-
-        // Ambil label dimensi aktual untuk log yang informatif
-        $dims = \App\Support\StageRubric::getDimensions($currentStage);
-
-        // Hitung rata-rata dari 4 dimensi rubrik
-        $avgRating = round(
-            ($this->technicalRating + $this->communicationRating + $this->problemSolvingRating + $this->cultureFitRating) / 4
-        );
-
-        InterviewScore::create([
-            'application_id'         => $this->selectedApplicationId,
-            'interviewer_id'         => Auth::id(),
-            'rating'                 => $avgRating,
-            'notes'                  => $this->ratingNotes,
-            'stage'                  => $currentStage,
-            'technical_rating'       => $this->technicalRating,
-            'communication_rating'   => $this->communicationRating,
-            'problem_solving_rating' => $this->problemSolvingRating,
-            'culture_fit_rating'     => $this->cultureFitRating,
-        ]);
-
-        $logDetail = "[{$currentStage}] {$dims[0]['label']}={$this->technicalRating} | {$dims[1]['label']}={$this->communicationRating} | {$dims[2]['label']}={$this->problemSolvingRating} | {$dims[3]['label']}={$this->cultureFitRating} (Avg: ★{$avgRating})";
-        if ($this->ratingNotes) {
-            $logDetail .= " | Catatan: \"{$this->ratingNotes}\"";
-        }
-        $this->logActivity($this->selectedApplicationId, 'scoring', $logDetail);
-
-        $this->rating = $avgRating;
-        $this->technicalRating = 3;
-        $this->communicationRating = 3;
-        $this->problemSolvingRating = 3;
-        $this->cultureFitRating = 3;
-        $this->ratingNotes = '';
-        session()->flash('rating_success', "Penilaian tahap {$currentStage} berhasil disimpan!");
-    }
-
-    public function updatedSelectedTemplateType()
-    {
-        $this->updateMessageText();
-    }
-
-    public function updateMessageText()
-    {
-        if ($this->selectedApplicationId) {
-            $app = Application::with('candidate.user')->find($this->selectedApplicationId);
-            if ($app) {
-                $tpl = $this->templates[$this->selectedTemplateType] ?? $this->templates['umum'];
-                $this->messageText = $this->parsePlaceholders($tpl['body'], $app);
-                $this->emailSubject = $this->parsePlaceholders($tpl['subject'], $app);
-            }
-        }
+        return $app->candidate?->user?->email ?? '';
     }
 
     public function parsePlaceholders(string $text, Application $app): string
@@ -517,92 +388,6 @@ class CandidateStage extends Component
         return str_replace($search, $replace, $text);
     }
 
-    public function getWhatsappUrl(Application $application, ?string $customMessage = null): string
-    {
-        $phone = $application->candidate->phone;
-        $phoneClean = preg_replace('/[^0-9]/', '', $phone);
-        if (strpos($phoneClean, '0') === 0) {
-            $phoneClean = '62' . substr($phoneClean, 1);
-        }
-        
-        $msg = $customMessage ?? $this->messageText;
-        if (empty($msg)) {
-            $tpl = $this->templates[$this->selectedTemplateType] ?? $this->templates['umum'];
-            $msg = $this->parsePlaceholders($tpl['body'], $application);
-        }
-        
-        return 'https://wa.me/' . $phoneClean . '?text=' . urlencode($msg);
-    }
-
-    public function sendSingleEmail()
-    {
-        if (!$this->selectedApplicationId) {
-            return;
-        }
-
-        $app = Application::with(['candidate.user', 'answers.requirement'])->find($this->selectedApplicationId);
-        if (!$app) {
-            return;
-        }
-
-        $this->validate([
-            'messageText' => 'required|string',
-            'emailSubject' => 'required|string',
-        ], [
-            'messageText.required' => 'Isi pesan tidak boleh kosong.',
-            'emailSubject.required' => 'Subjek email tidak boleh kosong.',
-        ]);
-
-        try {
-            $email = $this->getSingleCandidateEmail($app);
-            $subject = $this->emailSubject;
-            $body = $this->messageText;
-
-            Mail::raw($body, function ($message) use ($email, $subject) {
-                $message->to($email)
-                    ->subject($subject);
-            });
-
-            session()->flash('notification_success', "Email berhasil dikirim ke {$email}!");
-        } catch (\Exception $e) {
-            session()->flash('notification_error', "Gagal mengirim email: " . $e->getMessage());
-        }
-    }
-
-    public function getSingleCandidateEmail(Application $app): string
-    {
-        // Cari jawaban yang pertanyaannya mengandung kata 'email'
-        $emailAnswer = $app->answers
-            ->first(fn($ans) => stripos($ans->requirement->question ?? '', 'email') !== false);
-
-        if ($emailAnswer && filter_var(trim($emailAnswer->answer), FILTER_VALIDATE_EMAIL)) {
-            return trim($emailAnswer->answer);
-        }
-
-        // Fallback ke email akun user
-        return $app->candidate?->user?->email ?? '';
-    }
-
-    public function getGmailUrl(Application $application): string
-    {
-        $email = $this->getSingleCandidateEmail($application);
-        
-        $msg = $this->messageText;
-        if (empty($msg)) {
-            $tpl = $this->templates[$this->selectedTemplateType] ?? $this->templates['umum'];
-            $msg = $tpl['body'];
-        }
-        $msgParsed = $this->parsePlaceholders($msg, $application);
-        
-        $subject = $this->emailSubject;
-        if (empty($subject)) {
-            $tpl = $this->templates[$this->selectedTemplateType] ?? $this->templates['umum'];
-            $subject = $tpl['subject'];
-        }
-        $subjectParsed = $this->parsePlaceholders($subject, $application);
-        
-        return 'https://mail.google.com/mail/?view=cm&fs=1&to=' . urlencode($email) . '&su=' . urlencode($subjectParsed) . '&body=' . urlencode($msgParsed);
-    }
 
     public function openBulkModal()
     {
@@ -802,28 +587,12 @@ class CandidateStage extends Component
         
         $hasMore = $totalCount > $this->limit;
 
-        $selectedApplication = $this->selectedApplicationId
-            ? Application::with(['candidate.user', 'interviewScores.interviewer', 'answers.requirement', 'activityLogs'])->find($this->selectedApplicationId)
-            : null;
-
-        // Stage-specific rubric computation
-        $currentStage     = $this->stage;
-        $stageDimensions  = \App\Support\StageRubric::getDimensions($currentStage);
-        $sliderDimensions = \App\Support\StageRubric::getSliderDimensions($currentStage, $this);
-        $stageScores = $selectedApplication
-            ? $selectedApplication->interviewScores->filter(fn($s) => !$s->stage || $s->stage === $currentStage)
-            : collect();
-
         return view('livewire.hrd.candidate-stage', [
             'applications'        => $applications,
             'totalCount'          => $totalCount,
             'hasMore'             => $hasMore,
-            'selectedApplication' => $selectedApplication,
             'availableJobTitles'  => JobPosition::where('is_active', true)->pluck('title'),
-            'currentStage'        => $currentStage,
-            'stageDimensions'     => $stageDimensions,
-            'sliderDimensions'    => $sliderDimensions,
-            'stageScores'         => $stageScores,
+            'currentStage'        => $this->stage,
         ])->layout('components.layouts.hrd');
     }
 }
