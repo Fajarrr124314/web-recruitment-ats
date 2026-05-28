@@ -80,8 +80,11 @@
             </a>
 
             <!-- Proses Kandidat Dropdown Menu -->
-            <div x-data="{ open: {{ (request()->routeIs('hrd.dashboard') || request()->routeIs('hrd.process')) ? 'true' : 'false' }} }" class="space-y-0.5">
-                <button @click="open = !open" title="Proses Kandidat"
+            <div x-data="{ 
+                pinned: localStorage.getItem('sidebar_pinned') === 'true',
+                open: localStorage.getItem('sidebar_pinned') === 'true' || {{ (request()->routeIs('hrd.dashboard') || request()->routeIs('hrd.process')) ? 'true' : 'false' }}
+            }" class="space-y-0.5">
+                <button @click="if(!pinned) open = !open" title="Proses Kandidat"
                    class="group flex items-center justify-between w-full py-2.5 rounded-xl transition-all duration-150 hover:translate-x-1 hover:shadow-sm {{ (request()->routeIs('hrd.dashboard') || request()->routeIs('hrd.process')) ? 'bg-gradient-to-r from-red-50/40 to-red-100/20 border-l-4 border-red-400 text-red-600 font-semibold' : 'text-slate-600 hover:bg-red-50/50 hover:text-red-500 border-l-4 border-transparent font-semibold' }}"
                    :class="desktopSidebarOpen ? 'px-4' : 'px-4 md:px-0 md:justify-center'">
                     <div class="flex items-center gap-3">
@@ -90,9 +93,23 @@
                         </svg>
                         <span :class="desktopSidebarOpen ? '' : 'md:hidden'" class="truncate font-semibold text-sm">Proses Kandidat</span>
                     </div>
-                    <svg :class="[desktopSidebarOpen ? '' : 'md:hidden', open ? 'rotate-180' : '']" class="w-4 h-4 text-slate-400 shrink-0 transition-transform duration-150" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                    </svg>
+                    
+                    <div class="flex items-center gap-1.5 shrink-0" :class="desktopSidebarOpen ? '' : 'md:hidden'" @click.stop>
+                        <!-- Pinned Toggle Button (Pushpin) -->
+                        <span role="button" @click="pinned = !pinned; localStorage.setItem('sidebar_pinned', pinned); if(pinned) open = true" 
+                                class="p-1.5 rounded-lg transition-colors flex items-center justify-center cursor-pointer"
+                                :class="pinned ? 'text-red-600 bg-red-50' : 'text-slate-400 hover:text-red-500 hover:bg-slate-100'"
+                                title="Sematkan Menu">
+                            <svg class="w-3.5 h-3.5 transform transition-transform" :class="pinned ? 'rotate-45' : ''" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z"/>
+                            </svg>
+                        </span>
+                        
+                        <!-- Toggle Arrow -->
+                        <svg :class="open ? 'rotate-180' : ''" @click="if(!pinned) open = !open" class="w-4 h-4 text-slate-400 transition-transform duration-150 cursor-pointer" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </div>
                 </button>
 
                 <!-- Sub-menu Items -->

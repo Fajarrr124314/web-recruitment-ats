@@ -16,6 +16,7 @@ class Application extends Model
         'status',
         'rejection_reason',
         'rejected_at',
+        'is_archived',
     ];
 
     protected $casts = [
