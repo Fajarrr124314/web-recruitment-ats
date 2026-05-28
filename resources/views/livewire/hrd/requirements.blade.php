@@ -35,19 +35,14 @@
                         ● {{ $globalIsActive ? 'PORTAL AKTIF' : 'PORTAL NONAKTIF' }}
                     </span>
 
-                    <!-- Instant Toggle Switch (Alpine.js optimistic UI — zero-lag) -->
-                    <button
-                        x-data="{ active: {{ $globalIsActive ? 'true' : 'false' }} }"
-                        @click="active = !active; $wire.toggleGlobalActive()"
-                        :class="active 
-                            ? 'bg-gradient-to-r from-green-500 to-emerald-500 focus:ring-green-500 shadow-lg shadow-green-500/40' 
-                            : 'bg-gradient-to-r from-red-500 to-rose-500 focus:ring-red-500 shadow-lg shadow-red-500/40'"
-                        class="relative inline-flex h-8 w-14 shrink-0 cursor-pointer items-center justify-center rounded-full focus:outline-none focus:ring-4 focus:ring-offset-2 transition-colors duration-200 ease-in-out"
-                        role="switch"
-                        :aria-checked="active.toString()">
-                        <span aria-hidden="true"
-                            :class="active ? 'translate-x-3' : '-translate-x-3'"
-                            class="pointer-events-none inline-block h-6 w-6 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out">
+                    <!-- Modern Toggle Switch (Pure Livewire — 100% in sync) -->
+                    <button wire:click="toggleGlobalActive" 
+                        class="relative inline-flex h-8 w-14 shrink-0 cursor-pointer items-center justify-center rounded-full focus:outline-none focus:ring-4 focus:ring-offset-2 transition-colors duration-300 ease-in-out
+                        {{ $globalIsActive ? 'bg-gradient-to-r from-green-500 to-emerald-500 focus:ring-green-500 shadow-lg shadow-green-500/40' : 'bg-gradient-to-r from-red-500 to-rose-500 focus:ring-red-500 shadow-lg shadow-red-500/40' }}"
+                        role="switch" aria-checked="{{ $globalIsActive ? 'true' : 'false' }}">
+                        <span aria-hidden="true" 
+                            class="pointer-events-none inline-block h-6 w-6 transform rounded-full bg-white shadow ring-0 transition duration-300 ease-in-out
+                            {{ $globalIsActive ? 'translate-x-3' : '-translate-x-3' }}">
                         </span>
                     </button>
                 </div>
@@ -255,15 +250,11 @@
                             @endif
                         </div>
                         <div class="flex items-center justify-between border-t border-slate-50 pt-3">
-                        <button
-                            x-data="{ active: {{ $job->is_active ? 'true' : 'false' }} }"
-                            @click="active = !active; $wire.toggleJobActive({{ $job->id }})"
-                            :class="active 
-                                ? 'border-green-200 text-green-600 bg-green-50' 
-                                : 'border-slate-200 text-slate-500 bg-slate-50'"
-                            class="text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-lg border transition-colors duration-150">
-                            <span x-text="active ? 'Aktif' : 'Nonaktif'"></span>
-                        </button>
+                            <button wire:click="toggleJobActive({{ $job->id }})" 
+                                class="text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-lg border transition-colors duration-150
+                                {{ $job->is_active ? 'border-green-200 text-green-600 bg-green-50' : 'border-slate-200 text-slate-500 bg-slate-50' }}">
+                                {{ $job->is_active ? 'Aktif' : 'Nonaktif' }}
+                            </button>
                             <div class="flex items-center gap-1">
                                 <button wire:click="editJobPosition({{ $job->id }})" class="text-blue-500 hover:text-blue-700 p-1 hover:bg-blue-50 rounded-lg transition-colors" title="Edit Posisi">
                                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -379,14 +370,10 @@
                         </div>
                         
                         <div class="flex items-center gap-2">
-                            <button
-                                x-data="{ active: {{ $req->is_active ? 'true' : 'false' }} }"
-                                @click="active = !active; $wire.toggleActive({{ $req->id }})"
-                                :class="active 
-                                    ? 'border-green-200 text-green-600 bg-green-50' 
-                                    : 'border-slate-200 text-slate-500 bg-slate-50'"
-                                class="text-xs font-extrabold uppercase tracking-wider px-2.5 py-1 rounded-lg border transition-colors duration-150">
-                                <span x-text="active ? 'Aktif' : 'Nonaktif'"></span>
+                            <button wire:click="toggleActive({{ $req->id }})" 
+                                class="text-xs font-extrabold uppercase tracking-wider px-2.5 py-1 rounded-lg border transition-colors duration-150
+                                {{ $req->is_active ? 'border-green-200 text-green-600 bg-green-50' : 'border-slate-200 text-slate-500 bg-slate-50' }}">
+                                {{ $req->is_active ? 'Aktif' : 'Nonaktif' }}
                             </button>
                             <button wire:click="editRequirement({{ $req->id }})" class="text-blue-500 hover:text-blue-700 p-1.5 hover:bg-blue-50 rounded-lg transition-colors" title="Edit Persyaratan">
                                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
