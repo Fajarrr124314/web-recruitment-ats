@@ -1,17 +1,31 @@
 <div>
     <!-- Candidate Detail Slide-out Drawer / Modal -->
-    @if($selectedApplication)
-        @php
-            $dimensions = $stageDimensions;
-        @endphp
-        <div class="fixed inset-0 z-50 overflow-hidden" aria-labelledby="slide-over-title" role="dialog" aria-modal="true">
-            <div class="absolute inset-0 overflow-hidden">
-                <!-- Backdrop overlay with premium fade-in & blur -->
-                <div wire:click="closeDetails" class="absolute inset-0 bg-slate-800/50 backdrop-blur-xs animate-fade-in transition-opacity" aria-hidden="true"></div>
+    <div x-data="{ 
+        open: false,
+        selectedId: @entangle('selectedApplicationId')
+    }"
+        x-init="
+            $watch('selectedId', value => {
+                if (value) {
+                    open = true;
+                } else {
+                    open = false;
+                }
+            })
+        "
+        @keydown.escape.window="open = false; selectedId = null; $wire.closeDetails()"
+        @show-candidate-details.window="open = true"
+        class="relative z-50">
 
-                <!-- Sliding Container with GPU-accelerated slide-in -->
-                <div class="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-10">
-                    <div class="pointer-events-auto w-screen max-w-2xl animate-slide-in">
+        <!-- Backdrop overlay (Optimized to 0ms instant display to completely eliminate lag/frame drops) -->
+        <div x-show="open" 
+             @click="open = false; selectedId = null; $wire.closeDetails()" 
+             class="fixed inset-0 bg-slate-800/40 backdrop-blur-xs z-50" style="display: none;"></div>
+
+        <!-- Sliding Container (Optimized to 0ms instant display per user request) -->
+        <div x-show="open"
+             class="fixed inset-y-0 right-0 flex max-w-full pl-10 z-50 w-full max-w-2xl gpu-accelerated" style="display: none;">
+                    <div class="pointer-events-auto w-screen max-w-2xl">
                         <div class="flex h-full flex-col overflow-y-scroll bg-white border-l border-red-100 shadow-2xl relative">
                             
                             <!-- Drawer Top Gradient Border Line -->
@@ -21,13 +35,19 @@
                             <div class="px-6 py-5 border-b border-red-100 flex items-center justify-between bg-white sticky top-0 z-10">
                                 <div>
                                     <h2 class="text-xl font-bold text-slate-800" id="slide-over-title">
-                                        Detail Pelamar: <span class="bg-clip-text text-transparent bg-gradient-to-r {{ $theme['gradient'] }}">{{ $selectedApplication->candidate->user->name }}</span>
+                                        @if($selectedApplication)
+                                            Detail Pelamar: <span class="bg-clip-text text-transparent bg-gradient-to-r {{ $theme['gradient'] }}">{{ $selectedApplication->candidate->user->name }}</span>
+                                        @else
+                                            Memuat Detail Pelamar...
+                                        @endif
                                     </h2>
-                                    <p class="text-xs text-slate-500 mt-0.5">Lamaran masuk pada {{ $selectedApplication->created_at->format('d M Y, H:i') }}</p>
+                                    @if($selectedApplication)
+                                        <p class="text-xs text-slate-500 mt-0.5">Lamaran masuk pada {{ $selectedApplication->created_at->format('d M Y, H:i') }}</p>
+                                    @endif
                                 </div>
-                                <button type="button" wire:click="closeDetails"
+                                <button type="button" @click="open = false; selectedId = null; $wire.closeDetails()"
                                     class="rounded-lg p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors focus:outline-none">
-                                    <span class="sr-only">Close panel</span>
+                                    <span class="sr-only">Tutup</span>
                                     <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                                     </svg>
@@ -36,7 +56,63 @@
 
                             <!-- Content Body -->
                             <div class="flex-1 p-6 space-y-6">
-                                <!-- 1. Candidate Profile Info Card (At the top) -->
+                                <!-- 1. GORGEOUS SHIMMERING SKELETON LOADER (Shown while loading details) -->
+                                <div wire:loading.flex wire:target="loadCandidate" class="flex-col gap-6 w-full animate-pulse">
+                                    <!-- Profile skeleton -->
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div class="h-28 bg-slate-100 rounded-2xl border border-slate-100 p-4 space-y-3">
+                                            <div class="h-3.5 bg-slate-200 rounded w-1/3"></div>
+                                            <div class="h-4 bg-slate-300 rounded w-2/3"></div>
+                                            <div class="space-y-2 pt-2">
+                                                <div class="h-3 bg-slate-200 rounded w-full"></div>
+                                                <div class="h-3 bg-slate-200 rounded w-4/5"></div>
+                                            </div>
+                                        </div>
+                                        <div class="h-28 bg-slate-100 rounded-2xl border border-slate-100 p-4 space-y-3">
+                                            <div class="h-3.5 bg-slate-200 rounded w-1/3"></div>
+                                            <div class="flex gap-2">
+                                                <div class="h-6 bg-slate-200 rounded w-12"></div>
+                                                <div class="h-6 bg-slate-200 rounded w-16"></div>
+                                                <div class="h-6 bg-slate-200 rounded w-14"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- Form Answers skeleton -->
+                                    <div class="space-y-3">
+                                        <div class="h-3 bg-slate-200 rounded w-1/4"></div>
+                                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                            <div class="h-16 bg-slate-100 rounded-xl p-3 space-y-2">
+                                                <div class="h-2.5 bg-slate-200 rounded w-1/2"></div>
+                                                <div class="h-3.5 bg-slate-300 rounded w-3/4"></div>
+                                            </div>
+                                            <div class="h-16 bg-slate-100 rounded-xl p-3 space-y-2">
+                                                <div class="h-2.5 bg-slate-200 rounded w-2/3"></div>
+                                                <div class="h-3.5 bg-slate-300 rounded w-1/2"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- Sliders skeleton -->
+                                    <div class="bg-slate-50 border border-slate-200 p-5 rounded-2xl space-y-4">
+                                        <div class="h-3.5 bg-slate-200 rounded w-1/3"></div>
+                                        <div class="space-y-3">
+                                            <div class="h-12 bg-white rounded-xl border border-slate-100 p-3 flex flex-col justify-center gap-2">
+                                                <div class="h-3 bg-slate-200 rounded w-1/2"></div>
+                                                <div class="h-1.5 bg-slate-100 rounded w-full"></div>
+                                            </div>
+                                            <div class="h-12 bg-white rounded-xl border border-slate-100 p-3 flex flex-col justify-center gap-2">
+                                                <div class="h-3 bg-slate-200 rounded w-1/3"></div>
+                                                <div class="h-1.5 bg-slate-100 rounded w-full"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                @if($selectedApplication)
+                                    @php
+                                        $dimensions = $stageDimensions;
+                                    @endphp
+                                    <div wire:loading.remove wire:target="loadCandidate" class="space-y-6">
+                                        <!-- 1. Candidate Profile Info Card (At the top) -->
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div class="bg-white border border-slate-100 p-4 rounded-xl shadow-sm">
                                         <h3 class="text-[10px] font-bold uppercase tracking-wider text-slate-400 border-b border-slate-100 pb-2 mb-2">Info Kontak & Posisi</h3>
@@ -353,10 +429,10 @@
                                     </div>
                                 @endif
                             </div>
-                        </div>
+                        @endif
                     </div>
                 </div>
             </div>
         </div>
-    @endif
+    </div>
 </div>

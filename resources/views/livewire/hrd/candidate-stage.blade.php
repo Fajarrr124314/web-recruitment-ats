@@ -207,7 +207,7 @@
                                 {{ $loop->iteration }}
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="flex items-center cursor-pointer group" wire:click="selectApplication({{ $app->id }})">
+                                <div class="flex items-center cursor-pointer group" @click="$dispatch('show-candidate-details', { applicationId: {{ $app->id }}, stage: '{{ $stage }}' })">
                                     <div class="h-8 w-8 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center font-bold text-xs shrink-0 border border-slate-200">
                                         {{ substr($app->candidate->user->name, 0, 1) }}
                                     </div>
@@ -248,7 +248,7 @@
                                         <option value="{{ $status }}" {{ $app->status === $status ? 'selected' : '' }}>Pindah: {{ $status }}</option>
                                     @endforeach
                                 </select>
-                                <button wire:click="selectApplication({{ $app->id }})" class="text-white bg-slate-800 hover:bg-slate-700 px-4 py-1.5 rounded-lg font-bold shadow-sm transition-colors">
+                                <button @click="$dispatch('show-candidate-details', { applicationId: {{ $app->id }}, stage: '{{ $stage }}' })" class="text-white bg-slate-800 hover:bg-slate-700 px-4 py-1.5 rounded-lg font-bold shadow-sm transition-colors">
                                     Detail
                                 </button>
                             </td>

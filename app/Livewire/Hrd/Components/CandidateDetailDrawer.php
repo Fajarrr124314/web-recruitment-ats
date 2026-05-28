@@ -11,6 +11,7 @@ use Livewire\Attributes\On;
 
 class CandidateDetailDrawer extends Component
 {
+    private ?Application $loadedApplication = null;
     public ?int $selectedApplicationId = null;
     public string $stage = ''; // Active stage name (administrasi, psikotes, interview, mcu)
     
@@ -78,10 +79,16 @@ class CandidateDetailDrawer extends Component
         $this->showRejectModal = false;
         $this->rejectReason = '';
         
-        $app = Application::with('candidate.user')->find($applicationId);
-        if ($app) {
+        $this->loadedApplication = Application::with([
+            'candidate.user', 
+            'interviewScores.interviewer', 
+            'answers.requirement', 
+            'activityLogs'
+        ])->find($applicationId);
+
+        if ($this->loadedApplication) {
             if (!$this->stage) {
-                $this->stage = $app->status;
+                $this->stage = $this->loadedApplication->status;
             }
             $stageSlug = strtolower($this->stage);
             if (array_key_exists($stageSlug, $this->templates)) {
@@ -89,7 +96,7 @@ class CandidateDetailDrawer extends Component
             } else {
                 $this->selectedTemplateType = 'umum';
             }
-            $this->updateMessageText();
+            $this->updateMessageText($this->loadedApplication);
         }
     }
 
@@ -209,10 +216,12 @@ class CandidateDetailDrawer extends Component
         $this->updateMessageText();
     }
 
-    public function updateMessageText()
+    public function updateMessageText(?Application $app = null)
     {
         if ($this->selectedApplicationId) {
-            $app = Application::with('candidate.user')->find($this->selectedApplicationId);
+            if (!$app) {
+                $app = $this->loadedApplication ?: Application::with('candidate.user')->find($this->selectedApplicationId);
+            }
             if ($app) {
                 $tpl = $this->templates[$this->selectedTemplateType] ?? $this->templates['umum'];
                 $this->messageText = $this->parsePlaceholders($tpl['body'], $app);
@@ -320,9 +329,16 @@ class CandidateDetailDrawer extends Component
 
     public function render()
     {
-        $selectedApplication = $this->selectedApplicationId
-            ? Application::with(['candidate.user', 'interviewScores.interviewer', 'answers.requirement', 'activityLogs'])->find($this->selectedApplicationId)
-            : null;
+        if ($this->selectedApplicationId && !$this->loadedApplication) {
+            $this->loadedApplication = Application::with([
+                'candidate.user', 
+                'interviewScores.interviewer', 
+                'answers.requirement', 
+                'activityLogs'
+            ])->find($this->selectedApplicationId);
+        }
+
+        $selectedApplication = $this->loadedApplication;
 
         $currentStage     = $this->stage ?: ($selectedApplication?->status ?? 'Interview');
         $stageDimensions  = \App\Support\StageRubric::getDimensions($currentStage);

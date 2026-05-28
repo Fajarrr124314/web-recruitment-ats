@@ -42,3 +42,26 @@
         to { transform: translateY(0); opacity: 1; }
     }
 }
+
+/* ==========================================================================
+   Motion Design Plan: Hardware Acceleration & GPU Optimizations
+   ========================================================================== */
+
+/* GPU Hardware Acceleration for ultra-smooth 60fps composite layer rendering */
+.gpu-accelerated {
+    will-change: transform, opacity;
+    transform: translate3d(0, 0, 0);
+    backface-visibility: hidden;
+    perspective: 1000px;
+}
+
+/* Global reduced motion accessibility bypass for low-spec/battery-saving devices */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-delay: 0s !important;
+        animation-duration: 0s !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0s !important;
+        scroll-behavior: auto !important;
+    }
+}
