@@ -24,9 +24,9 @@
 
         <!-- Sliding Container (Optimized to 0ms instant display per user request) -->
         <div x-show="open"
-             class="fixed inset-y-0 right-0 flex max-w-full pl-10 z-50 w-full max-w-2xl gpu-accelerated" style="display: none;">
+             class="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-10 z-50 gpu-accelerated" style="display: none;">
                     <div class="pointer-events-auto w-screen max-w-2xl">
-                        <div class="flex h-full flex-col overflow-y-scroll bg-white border-l border-red-100 shadow-2xl relative">
+                        <div class="flex h-full flex-col overflow-y-scroll bg-white border-l border-slate-100 shadow-2xl relative">
                             
                             <!-- Drawer Top Gradient Border Line -->
                             <div class="absolute inset-x-0 top-0 h-1 bg-gradient-to-r {{ $theme['gradient'] }}"></div>

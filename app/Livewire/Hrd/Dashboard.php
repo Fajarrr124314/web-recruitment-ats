@@ -412,6 +412,25 @@ class Dashboard extends Component
         return str_replace($search, $replace, $text);
     }
 
+    public function getWhatsappUrl(Application $application, ?string $customMessage = null): string
+    {
+        $phone = $application->candidate->phone ?? '';
+        $phoneClean = preg_replace('/[^0-9]/', '', $phone);
+        if (strpos($phoneClean, '0') === 0) {
+            $phoneClean = '62' . substr($phoneClean, 1);
+        }
+        
+        $msg = $customMessage ?? $this->bulkMessageText;
+        if (empty($msg)) {
+            $tpl = $this->templates[$this->bulkTemplateType] ?? $this->templates['umum'];
+            $msg = $this->parsePlaceholders($tpl['body'], $application);
+        } else {
+            $msg = $this->parsePlaceholders($msg, $application);
+        }
+        
+        return 'https://wa.me/' . $phoneClean . '?text=' . urlencode($msg);
+    }
+
     public function sendBulkEmails()
     {
         if (empty($this->selectedApplications)) {
