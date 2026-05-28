@@ -151,51 +151,33 @@
                                         @endforelse
                                     </div>
 
-                                    <!-- Swipeable Scoring Form -->
-                                    <form wire:submit.prevent="submitAssessment" class="bg-red-50/50 p-5 border border-red-100 rounded-2xl space-y-4 shadow-sm" x-data="{ activeTab: 0, totalTabs: {{ count($sliderDimensions) }} }">
+                                    <!-- Rubric Scoring Form (Vertical Layout with custom red slider tracks) -->
+                                    <form wire:submit.prevent="submitAssessment" class="bg-red-50/50 p-5 border border-red-100 rounded-2xl space-y-4 shadow-sm">
                                         <div class="border-b border-red-100/50 pb-2 flex items-center justify-between">
                                             <div>
                                                 <span class="text-[9px] font-black text-red-500 uppercase tracking-widest block">Evaluasi Objektif</span>
                                                 <h4 class="text-xs font-extrabold text-slate-800 tracking-tight">Rubrik Tahap {{ $currentStage }}</h4>
                                             </div>
-                                            <!-- Navigation Dots -->
-                                            <div class="flex items-center gap-1">
-                                                @for($i = 0; $i < count($sliderDimensions); $i++)
-                                                    <span class="w-1.5 h-1.5 rounded-full transition-all duration-300" :class="activeTab === {{ $i }} ? 'bg-red-500 w-3' : 'bg-slate-300'"></span>
-                                                @endfor
-                                            </div>
                                         </div>
 
-                                        <!-- Swiper Frame -->
-                                        <div class="relative overflow-hidden w-full h-[120px]">
-                                            <div class="flex transition-transform duration-500 ease-out h-full" :style="'transform: translateX(-' + (activeTab * 100) + '%)'">
-                                                @foreach($sliderDimensions as $index => $dim)
-                                                    <div class="w-full flex-shrink-0 px-1 flex flex-col justify-center gap-3">
-                                                        <div class="flex justify-between items-center text-xs">
-                                                            <div>
-                                                                <span class="font-extrabold text-slate-800 block text-xs">{{ $dim['label'] }}</span>
-                                                                <span class="text-[10px] text-slate-450 font-medium block leading-tight">{{ $dim['desc'] }}</span>
-                                                            </div>
-                                                            <span class="px-2.5 py-1 rounded-xl bg-white text-slate-800 font-extrabold border border-red-200 shadow-sm shrink-0 font-mono text-xs" x-data="{ val: @entangle($dim['livewire_key']) }" x-text="val"></span>
-                                                        </div>
-                                                        <div x-data="{ val: @entangle($dim['livewire_key']) }">
-                                                            <input type="range" min="1" max="5" step="1" x-model="val"
-                                                                class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-red-500 hover:accent-red-650 transition-all">
-                                                        </div>
-                                                    </div>
-                                                @endforeach
-                                            </div>
-                                        </div>
-
-                                        <!-- Rubric Swiper Controls -->
-                                        <div class="flex justify-between items-center bg-white/60 p-2 rounded-xl border border-red-100/50">
-                                            <button type="button" @click="if(activeTab > 0) activeTab--" :disabled="activeTab === 0" class="px-3 py-1 bg-white border border-slate-200 hover:border-red-300 rounded-lg text-[10px] font-bold text-slate-600 disabled:opacity-40 transition-all select-none">
-                                                ← Sebelumnya
-                                            </button>
-                                            <span class="text-[10px] font-bold text-slate-500 font-mono" x-text="(activeTab + 1) + ' / ' + totalTabs"></span>
-                                            <button type="button" @click="if(activeTab < totalTabs - 1) activeTab++" :disabled="activeTab === totalTabs - 1" class="px-3 py-1 bg-white border border-slate-200 hover:border-red-300 rounded-lg text-[10px] font-bold text-slate-600 disabled:opacity-40 transition-all select-none">
-                                                Berikutnya →
-                                            </button>
+                                        <!-- Vertical list of sliders -->
+                                        <div class="space-y-4">
+                                            @foreach($sliderDimensions as $index => $dim)
+                                                <div class="bg-white p-3.5 rounded-xl border border-red-100/30 shadow-sm flex flex-col gap-2.5" x-data="{ val: @entangle($dim['livewire_key']) }">
+                                                     <div class="flex justify-between items-center text-xs">
+                                                         <div>
+                                                             <span class="font-extrabold text-slate-800 block text-xs">{{ $dim['label'] }}</span>
+                                                             <span class="text-[10px] text-slate-450 font-medium block leading-tight mt-0.5">{{ $dim['desc'] }}</span>
+                                                         </div>
+                                                         <span class="px-2.5 py-1 rounded-xl bg-red-50 text-red-600 font-extrabold border border-red-100 shadow-sm shrink-0 font-mono text-xs" x-text="val"></span>
+                                                     </div>
+                                                     <div class="flex items-center w-full">
+                                                         <input type="range" min="1" max="5" step="1" x-model="val"
+                                                             class="w-full h-2 rounded-lg appearance-none cursor-pointer accent-red-500 hover:accent-red-650 transition-all"
+                                                             :style="'background: linear-gradient(to right, #ef4444 0%, #ef4444 ' + ((val - 1) * 25) + '%, #e2e8f0 ' + ((val - 1) * 25) + '%, #e2e8f0 100%)'">
+                                                     </div>
+                                                </div>
+                                            @endforeach
                                         </div>
 
                                         <div class="space-y-1.5 pt-2 border-t border-red-100/50">
@@ -207,7 +189,7 @@
                                         </div>
 
                                         <div class="flex justify-end pt-1">
-                                            <button type="submit" class="px-5 py-2 bg-gradient-to-r {{ $theme['gradient'] }} text-white rounded-xl text-xs font-bold transition-all shadow-md shadow-red-500/10">
+                                            <button type="submit" class="px-5 py-2.5 bg-gradient-to-r {{ $theme['gradient'] }} text-white rounded-xl text-xs font-bold transition-all shadow-md shadow-red-500/10">
                                                 Simpan Penilaian
                                             </button>
                                         </div>
@@ -259,27 +241,20 @@
                                             <textarea wire:model="messageText" rows="4" class="w-full text-xs p-3 border border-red-100 rounded-xl focus:ring-2 focus:ring-red-500 bg-white/80 shadow-sm" placeholder="Tulis isi pesan..."></textarea>
                                         </div>
 
-                                        <!-- Dispatch buttons -->
-                                        <div class="flex flex-wrap gap-2 pt-1.5">
+                                        <!-- Dispatch buttons (WhatsApp & Gmail Only) -->
+                                        <div class="flex flex-wrap gap-3 pt-1.5">
                                             <!-- WhatsApp Link -->
                                             <a href="{{ $this->getWhatsappUrl($selectedApplication) }}" target="_blank"
-                                                class="flex-1 min-w-[120px] inline-flex items-center justify-center gap-1.5 px-3 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl text-xs font-bold shadow-md shadow-emerald-500/10 transition-all hover:-translate-y-0.5">
-                                                <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.521.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 00-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M11.999 0C5.373 0 0 5.373 0 12c0 2.12.554 4.107 1.523 5.832L.053 23.404a.75.75 0 00.918.918l5.572-1.47A11.943 11.943 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 11.999 0zm.001 21.75a9.714 9.714 0 01-4.963-1.362l-.357-.212-3.705.977.977-3.591-.232-.369A9.718 9.718 0 012.25 12C2.25 6.615 6.614 2.25 12 2.25S21.75 6.615 21.75 12 17.386 21.75 12 21.75z"/></svg>
-                                                Kirim WA
+                                                class="flex-1 min-w-[140px] inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl text-xs font-bold shadow-md shadow-emerald-500/10 transition-all hover:-translate-y-0.5">
+                                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.521.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 00-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M11.999 0C5.373 0 0 5.373 0 12c0 2.12.554 4.107 1.523 5.832L.053 23.404a.75.75 0 00.918.918l5.572-1.47A11.943 11.943 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 11.999 0zm.001 21.75a9.714 9.714 0 01-4.963-1.362l-.357-.212-3.705.977.977-3.591-.232-.369A9.718 9.718 0 012.25 12C2.25 6.615 6.614 2.25 12 2.25S21.75 6.615 21.75 12 17.386 21.75 12 21.75z"/></svg>
+                                                Hubungi via WhatsApp
                                             </a>
 
-                                            <!-- Direct Email -->
-                                            <button type="button" wire:click="sendSingleEmail"
-                                                class="flex-1 min-w-[120px] inline-flex items-center justify-center gap-1.5 px-3 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold shadow-md shadow-rose-600/10 transition-all hover:-translate-y-0.5">
-                                                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
-                                                Kirim Email
-                                            </button>
-
-                                            <!-- Gmail Tab link -->
+                                            <!-- Gmail Tab Link styled premiumly -->
                                             <a href="{{ $this->getGmailUrl($selectedApplication) }}" target="_blank"
-                                                class="flex-1 min-w-[120px] inline-flex items-center justify-center gap-1.5 px-3 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-bold shadow-md shadow-slate-900/10 transition-all hover:-translate-y-0.5">
-                                                <svg class="w-3.5 h-3.5 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
-                                                Gmail Tab
+                                                class="flex-1 min-w-[140px] inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold shadow-md shadow-rose-600/10 transition-all hover:-translate-y-0.5">
+                                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+                                                Hubungi via Gmail
                                             </a>
                                         </div>
                                     </div>
