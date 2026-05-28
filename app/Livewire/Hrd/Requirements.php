@@ -168,8 +168,14 @@ class Requirements extends Component
         if ($job) {
             $job->is_active = !$job->is_active;
             $job->save();
+            // Update in-memory collection to avoid full reload
+            $this->jobPositions = $this->jobPositions->map(function ($j) use ($job) {
+                if ($j->id === $job->id) {
+                    $j->is_active = $job->is_active;
+                }
+                return $j;
+            });
         }
-        $this->loadData();
     }
 
     // --- Requirement Methods ---
@@ -308,9 +314,17 @@ class Requirements extends Component
     public function toggleActive($id)
     {
         $req = RecruitmentRequirement::find($id);
-        $req->is_active = !$req->is_active;
-        $req->save();
-        $this->loadData();
+        if ($req) {
+            $req->is_active = !$req->is_active;
+            $req->save();
+            // Update in-memory collection to avoid full reload
+            $this->requirements = $this->requirements->map(function ($r) use ($req) {
+                if ($r->id === $req->id) {
+                    $r->is_active = $req->is_active;
+                }
+                return $r;
+            });
+        }
     }
 
     public function toggleGlobalActive()
@@ -319,12 +333,12 @@ class Requirements extends Component
         \App\Models\RecruitmentSetting::setValue('is_active', $this->globalIsActive ? '1' : '0');
 
         if ($this->globalIsActive) {
-            // If manual toggle is set to AKTIF, clear schedule
+            // If manual toggle is set to AKTIF, clear schedule immediately in-memory
             \App\Models\RecruitmentSetting::setValue('scheduled_open_at', null);
             $this->globalScheduledOpenAt = '';
         }
 
-        $this->loadData();
+        // No loadData() here — only globalIsActive changed, avoid full re-render
         session()->flash('success_global', 'Status pendaftaran global berhasil diperbarui menjadi ' . ($this->globalIsActive ? 'AKTIF' : 'NONAKTIF') . '.');
     }
 
