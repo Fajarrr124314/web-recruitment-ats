@@ -13,6 +13,7 @@ class Dashboard extends Component
 {
     public ?int $selectedApplicationId = null;
     public string $activeMobileTab = 'Administrasi';
+    public bool $showCalendar = false;
     
     public array $templates = [
         'psikotes' => [
@@ -942,30 +943,46 @@ class Dashboard extends Component
                     });
 
                 $totalCount = $baseQuery->count();
+                
+                // Get grouped candidates sorted properly according to settings
                 $grouped[$status] = (clone $baseQuery)
                     ->with(['candidate.user', 'interviewScores.interviewer'])
+                    ->withAvg('interviewScores', 'rating')
+                    ->when($this->sortBy === 'rating_desc', function($q) {
+                        $q->orderByDesc('interview_scores_avg_rating');
+                    }, function($q) {
+                        $q->latest();
+                    })
                     ->take($this->limits[$status] ?? 10)
                     ->get();
+                    
                 $hasMore[$status] = $totalCount > ($this->limits[$status] ?? 10);
 
-                // Average Rating computed directly at database level for maximum speed and memory efficiency (zero N+1 queries)
+                // Average Rating computed directly at database level for maximum speed and memory efficiency
                 $avgRating = \App\Models\InterviewScore::whereIn('application_id', (clone $baseQuery)->select('id'))->avg('rating');
 
-                // Sebaran per Posisi (Top 3)
-                $jobDistribution = (clone $baseQuery)
-                    ->select('job_title', \Illuminate\Support\Facades\DB::raw('count(*) as count'))
-                    ->groupBy('job_title')
-                    ->orderByDesc('count')
-                    ->take(3)
-                    ->get()
-                    ->pluck('count', 'job_title')
-                    ->toArray();
+                // Sebaran per Posisi (Top 3) - Only run if total count is > 0
+                $jobDistribution = [];
+                if ($totalCount > 0) {
+                    $jobDistribution = (clone $baseQuery)
+                        ->select('job_title', \Illuminate\Support\Facades\DB::raw('count(*) as count'))
+                        ->groupBy('job_title')
+                        ->orderByDesc('count')
+                        ->take(3)
+                        ->get()
+                        ->pluck('count', 'job_title')
+                        ->toArray();
+                }
 
-                // Kandidat Terbaru
-                $latestCandidate = (clone $baseQuery)
-                    ->with('candidate.user')
-                    ->latest()
-                    ->first();
+                // Kandidat Terbaru (retrieved directly in-memory from collection to save heavy SQL queries)
+                $latestCandidate = null;
+                if ($grouped[$status]->isNotEmpty()) {
+                    if ($this->sortBy === 'latest') {
+                        $latestCandidate = $grouped[$status]->first();
+                    } else {
+                        $latestCandidate = $grouped[$status]->sortByDesc('created_at')->first();
+                    }
+                }
 
                 $stageSummaries[$status] = [
                     'totalCount' => $totalCount,
@@ -1009,6 +1026,10 @@ class Dashboard extends Component
             ? $selectedApplication->interviewScores->filter(fn($s) => !$s->stage || $s->stage === $currentStage)
             : collect();
 
+        $activeJobCount = JobPosition::where('is_active', true)->count();
+        $totalCandidatesCount = Application::where('status', '!=', 'Draft')->count();
+        $todayApplicationsCount = Application::where('status', '!=', 'Draft')->whereDate('created_at', \Carbon\Carbon::today('Asia/Jakarta'))->count();
+
         return view('livewire.hrd.dashboard', [
             'groupedApplications' => $grouped,
             'tableApplications'   => $tableApplications,
@@ -1021,6 +1042,9 @@ class Dashboard extends Component
             'stageDimensions'     => $stageDimensions,
             'sliderDimensions'    => $sliderDimensions,
             'stageScores'         => $stageScores,
+            'activeJobCount'      => $activeJobCount,
+            'totalCandidatesCount'=> $totalCandidatesCount,
+            'todayApplicationsCount' => $todayApplicationsCount,
         ])->layout('components.layouts.hrd');
     }
 }

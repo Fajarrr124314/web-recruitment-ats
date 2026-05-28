@@ -282,7 +282,7 @@
         <div class="fixed inset-0 z-50 overflow-hidden" aria-labelledby="slide-over-title" role="dialog" aria-modal="true">
             <div class="absolute inset-0 overflow-hidden">
                 <!-- Backdrop overlay -->
-                <div wire:click="closeDetails" class="absolute inset-0 bg-slate-800/40 backdrop-blur-sm transition-opacity" aria-hidden="true"></div>
+                <div wire:click="closeDetails" class="absolute inset-0 bg-slate-800/60 transition-opacity" aria-hidden="true"></div>
 
                 <!-- Sliding Container -->
                 <div class="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-10 animate-slide-in">
@@ -293,7 +293,7 @@
                             <div class="absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r {{ $theme['gradient'] }}"></div>
 
                             <!-- Header -->
-                            <div class="px-6 py-5 border-b border-slate-150 flex items-center justify-between bg-white/80 backdrop-blur-md sticky top-0 z-10">
+                            <div class="px-6 py-5 border-b border-slate-150 flex items-center justify-between bg-white sticky top-0 z-10">
                                 <div>
                                     <h2 class="text-xl font-bold text-slate-850" id="slide-over-title">
                                         Detail Pelamar: <span class="bg-clip-text text-transparent bg-gradient-to-r {{ $theme['gradient'] }}">{{ $selectedApplication->candidate->user->name }}</span>

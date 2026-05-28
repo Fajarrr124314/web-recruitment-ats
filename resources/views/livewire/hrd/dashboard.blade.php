@@ -128,54 +128,49 @@
 
     @if($viewMode === 'kanban')
         @php
-            // Get current time in Asia/Jakarta
             $nowWib = \Carbon\Carbon::now('Asia/Jakarta');
             $hour = $nowWib->hour;
             
             if ($hour >= 5 && $hour < 11) {
                 $greeting = 'Selamat Pagi';
-                $icon = '<svg class="w-12 h-12 text-amber-500 animate-[spin_30s_linear_infinite]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m0-12.728l.707.707m12.728 12.728l.707.707M12 8a4 4 0 100 8 4 4 0 000-8z" /></svg>';
+                $icon = '<svg class="w-12 h-12 text-amber-500 hover:scale-105 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m0-12.728l.707.707m12.728 12.728l.707.707M12 8a4 4 0 100 8 4 4 0 000-8z" /></svg>';
                 $sub = 'Semangat pagi! Mari kita temukan talenta terbaik untuk tim hari ini.';
                 $gradient = 'from-amber-500/20 via-orange-500/10 to-transparent';
                 $borderColor = 'border-amber-200/50';
                 $glowColor = 'shadow-amber-500/5';
             } elseif ($hour >= 11 && $hour < 15) {
                 $greeting = 'Selamat Siang';
-                $icon = '<svg class="w-12 h-12 text-orange-500 animate-[spin_24s_linear_infinite]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m0-12.728l.707.707m12.728 12.728l.707.707M12 8a4 4 0 100 8 4 4 0 000-8z" /></svg>';
+                $icon = '<svg class="w-12 h-12 text-orange-500 hover:scale-105 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m0-12.728l.707.707m12.728 12.728l.707.707M12 8a4 4 0 100 8 4 4 0 000-8z" /></svg>';
                 $sub = 'Hari yang produktif! Pantau perkembangan funnel rekrutmen terbaru Anda.';
                 $gradient = 'from-blue-500/20 via-indigo-500/10 to-transparent';
                 $borderColor = 'border-blue-200/50';
                 $glowColor = 'shadow-blue-500/5';
             } elseif ($hour >= 15 && $hour < 18) {
                 $greeting = 'Selamat Sore';
-                $icon = '<svg class="w-12 h-12 text-rose-500 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1M12 19v1M21 12h-1M4 12H3m14.95-4.95l-.707.707M6.343 17.657l-.707.707m0-12.728l.707.707m11.314 11.314l-.707-.707M12 8a4 4 0 100 8 4 4 0 000-8z" /></svg>';
+                $icon = '<svg class="w-12 h-12 text-rose-500 hover:scale-105 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1M12 19v1M21 12h-1M4 12H3m14.95-4.95l-.707.707M6.343 17.657l-.707.707m0-12.728l.707.707m11.314 11.314l-.707-.707M12 8a4 4 0 100 8 4 4 0 000-8z" /></svg>';
                 $sub = 'Sore yang menyenangkan. Mari tinjau kembali kemajuan seleksi kandidat.';
                 $gradient = 'from-rose-500/20 via-pink-500/10 to-transparent';
                 $borderColor = 'border-rose-200/50';
                 $glowColor = 'shadow-rose-500/5';
             } else {
                 $greeting = 'Selamat Malam';
-                $icon = '<svg class="w-12 h-12 text-indigo-400 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" /></svg>';
+                $icon = '<svg class="w-12 h-12 text-indigo-400 hover:scale-105 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" /></svg>';
                 $sub = 'Selamat beristirahat. Rekrutmen tetap berjalan secara otomatis ditenagai AI.';
                 $gradient = 'from-indigo-950/40 via-purple-900/10 to-transparent';
                 $borderColor = 'border-indigo-500/30';
                 $glowColor = 'shadow-indigo-500/5';
             }
-
-            $activeJobCount = \App\Models\JobPosition::where('is_active', true)->count();
-            $totalCandidatesCount = \App\Models\Application::where('status', '!=', 'Draft')->count();
-            $todayApplicationsCount = \App\Models\Application::where('status', '!=', 'Draft')->whereDate('created_at', \Carbon\Carbon::today('Asia/Jakarta'))->count();
         @endphp
 
         <!-- Premium Glassmorphic Wide Greeting Card -->
-        <div class="relative overflow-hidden rounded-3xl border {{ $borderColor }} bg-gradient-to-r {{ $gradient }} backdrop-blur-xl p-6 sm:p-8 mb-8 shadow-xl {{ $glowColor }} flex flex-col md:flex-row items-center justify-between gap-6 transition-all duration-150 hover:shadow-2xl">
+        <div class="relative overflow-hidden rounded-3xl border {{ $borderColor }} bg-white/95 bg-gradient-to-r {{ $gradient }} p-6 sm:p-8 mb-8 shadow-xl {{ $glowColor }} flex flex-col md:flex-row items-center justify-between gap-6 transition-all duration-150 hover:shadow-2xl">
             <!-- Shimmer effect -->
             <div class="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:24px_24px] opacity-40"></div>
             <div class="absolute -right-24 -top-24 w-60 h-60 bg-gradient-to-br from-red-500/10 to-orange-500/10 rounded-full blur-3xl pointer-events-none"></div>
             
             <!-- Left Info: Greeting & Motivation -->
             <div class="relative z-10 flex items-center gap-4 text-center md:text-left flex-col sm:flex-row">
-                <div class="shrink-0 select-none animate-[bounce_4s_ease-in-out_infinite]">
+                <div class="shrink-0 select-none hover:scale-105 transition-transform duration-300">
                     {!! $icon !!}
                 </div>
                 <div>
@@ -351,19 +346,29 @@
         </div>
 
 
-        <!-- Interactive Calendar & Notes Component below Kanban board -->
-        @php
-            $firstDayOfMonth = \Carbon\Carbon::create($calendarYear, $calendarMonth, 1);
-            $daysInMonth = $firstDayOfMonth->daysInMonth;
-            $startOfWeek = $firstDayOfMonth->dayOfWeek; // 0 for Sunday, 1 for Monday, etc.
-            $offset = $startOfWeek === 0 ? 6 : $startOfWeek - 1;
-            
-            $prevMonthDate = $firstDayOfMonth->copy()->subMonth();
-            $daysInPrevMonth = $prevMonthDate->daysInMonth;
-            
-            $monthName = $firstDayOfMonth->translatedFormat('F Y');
-        @endphp
-        <div class="mt-12 bg-white/80 backdrop-blur-xl border border-red-100 rounded-3xl p-6 sm:p-8 shadow-xl shadow-red-100/10">
+        <!-- Interactive Calendar & Notes Component below Kanban board (Collapsible for Performance Optimization) -->
+        <div class="mt-8 flex flex-col items-center">
+            <button type="button" wire:click="$toggle('showCalendar')" 
+                class="px-6 py-3 bg-white border border-red-100 hover:border-red-300 rounded-2xl text-xs font-extrabold text-red-650 hover:bg-red-50/50 shadow-sm transition-all duration-300 flex items-center gap-2 select-none">
+                <svg class="w-4 h-4 text-red-500 transition-transform duration-300 {{ $showCalendar ? 'rotate-180' : '' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                <span>{{ $showCalendar ? 'Sembunyikan Kalender & Agenda' : 'Tampilkan Kalender & Agenda HRD' }}</span>
+            </button>
+
+            @if($showCalendar)
+                @php
+                    $firstDayOfMonth = \Carbon\Carbon::create($calendarYear, $calendarMonth, 1);
+                    $daysInMonth = $firstDayOfMonth->daysInMonth;
+                    $startOfWeek = $firstDayOfMonth->dayOfWeek; // 0 for Sunday, 1 for Monday, etc.
+                    $offset = $startOfWeek === 0 ? 6 : $startOfWeek - 1;
+                    
+                    $prevMonthDate = $firstDayOfMonth->copy()->subMonth();
+                    $daysInPrevMonth = $prevMonthDate->daysInMonth;
+                    
+                    $monthName = $firstDayOfMonth->translatedFormat('F Y');
+                @endphp
+                <div class="w-full mt-6 bg-white border border-red-100 rounded-3xl p-6 sm:p-8 shadow-xl shadow-red-100/5 transition-all duration-300 animate-fade-in">
             <div class="border-b border-red-50 pb-4 mb-6">
                 <span class="px-3 py-1 rounded-full bg-red-50 text-red-600 text-[10px] font-black uppercase tracking-widest border border-red-100">Kalender Interaktif</span>
                 <h3 class="text-xl font-extrabold text-slate-800 tracking-tight mt-2">Agenda & Catatan HRD</h3>
@@ -497,6 +502,7 @@
                 </div>
             </div>
         </div>
+        @endif
         </div>
     @elseif($viewMode === 'table')
         @if($enableScreening)
@@ -658,7 +664,7 @@
         <div class="fixed inset-0 z-50 overflow-hidden" aria-labelledby="slide-over-title" role="dialog" aria-modal="true">
             <div class="absolute inset-0 overflow-hidden">
                 <!-- Backdrop overlay -->
-                <div wire:click="closeDetails" class="absolute inset-0 bg-slate-800/40 backdrop-blur-sm transition-opacity" aria-hidden="true"></div>
+                <div wire:click="closeDetails" class="absolute inset-0 bg-slate-800/60 transition-opacity" aria-hidden="true"></div>
 
                 <!-- Sliding Container -->
                 <div class="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-10">
@@ -669,7 +675,7 @@
                             <div class="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-red-500 to-red-600"></div>
 
                             <!-- Header -->
-                            <div class="px-6 py-5 border-b border-red-100 flex items-center justify-between bg-white/80 backdrop-blur-md sticky top-0 z-10">
+                            <div class="px-6 py-5 border-b border-red-100 flex items-center justify-between bg-white sticky top-0 z-10">
                                 <div>
                                     <h2 class="text-xl font-bold text-slate-800" id="slide-over-title">
                                         Detail Pelamar: <span class="bg-clip-text text-transparent bg-gradient-to-r from-red-500 to-red-500">{{ $selectedApplication->candidate->user->name }}</span>
