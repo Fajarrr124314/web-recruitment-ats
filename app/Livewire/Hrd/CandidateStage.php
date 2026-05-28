@@ -219,7 +219,14 @@ class CandidateStage extends Component
         $this->cultureFitRating = 3;
         $this->showRejectModal = false;
         $this->rejectReason = '';
-        $this->selectedTemplateType = 'umum';
+        
+        $stageSlug = strtolower($this->stage);
+        if (array_key_exists($stageSlug, $this->templates)) {
+            $this->selectedTemplateType = $stageSlug;
+        } else {
+            $this->selectedTemplateType = 'umum';
+        }
+        
         $this->updateMessageText();
     }
 

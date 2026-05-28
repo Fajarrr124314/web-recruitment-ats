@@ -311,7 +311,19 @@ class Dashboard extends Component
         $this->cultureFitRating = 3;
         $this->showRejectModal = false;
         $this->rejectReason = '';
-        $this->selectedTemplateType = 'umum';
+        
+        $app = Application::find($id);
+        if ($app) {
+            $stageSlug = strtolower($app->status);
+            if (array_key_exists($stageSlug, $this->templates)) {
+                $this->selectedTemplateType = $stageSlug;
+            } else {
+                $this->selectedTemplateType = 'umum';
+            }
+        } else {
+            $this->selectedTemplateType = 'umum';
+        }
+        
         $this->updateMessageText();
     }
 

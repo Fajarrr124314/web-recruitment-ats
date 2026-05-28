@@ -337,12 +337,19 @@
                                             </div>
                                         </div>
 
-                                        <!-- WhatsApp Auto -->
-                                        <div class="sm:border-l sm:border-slate-200 sm:pl-4 shrink-0">
+                                        <!-- WhatsApp & Gmail Auto -->
+                                        <div class="sm:border-l sm:border-slate-200 sm:pl-4 shrink-0 flex flex-col gap-2">
                                             <a href="{{ $this->getWhatsappUrl($selectedApplication) }}" target="_blank"
                                                 class="inline-flex items-center justify-center px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl text-xs font-bold shadow-sm transition-transform hover:-translate-y-0.5 w-full sm:w-auto">
                                                 <svg class="h-4 w-4 mr-1.5" fill="currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.517 2.266 2.27 3.507 5.289 3.507 8.495 0 6.6-5.334 11.938-11.948 11.938-2.008-.002-3.98-.51-5.772-1.472L0 24zm6.59-4.846c1.6.95 3.188 1.449 4.825 1.451 5.436 0 9.86-4.37 9.864-9.799.002-2.63-1.023-5.101-2.885-6.97C16.579 2.008 14.12 1.01 11.56 1.01c-5.436 0-9.861 4.372-9.865 9.8.001 1.83.501 3.61 1.447 5.17l-1.018 3.715 3.823-.991zm11.303-6.843c-.3-.15-1.771-.875-2.04-.972-.27-.099-.467-.15-.662.15-.195.3-.757.971-.928 1.17-.172.195-.344.22-.643.07-.3-.15-1.269-.465-2.417-1.485-.89-.79-1.49-1.77-1.665-2.07-.173-.3-.022-.46.128-.608.133-.135.3-.349.45-.524.15-.175.2-.299.3-.499.1-.2.05-.375-.025-.524-.075-.15-.662-1.597-.907-2.192-.24-.575-.48-.497-.66-.505-.171-.007-.368-.008-.567-.008-.199 0-.523.075-.797.375-.272.3-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.771-.724 2.02-1.424.249-.699.249-1.299.175-1.424-.075-.125-.27-.199-.57-.349z" /></svg>
                                                 Undang via WA
+                                            </a>
+                                            <a href="{{ $this->getGmailUrl($selectedApplication) }}" target="_blank"
+                                                class="inline-flex items-center justify-center px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-bold shadow-sm transition-transform hover:-translate-y-0.5 w-full sm:w-auto">
+                                                <svg class="h-4 w-4 mr-1.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                                </svg>
+                                                Undang via Gmail
                                             </a>
                                         </div>
                                     </div>
@@ -375,6 +382,10 @@
                                                 <button type="button" wire:click="$set('rejectReason', 'Terima kasih telah mengikuti sesi interview. Kami sangat mengapresiasi keahlian Anda, namun saat ini kami memutuskan memproses kandidat lain yang lebih mendekati kriteria kami.')" 
                                                     class="px-2.5 py-1 bg-white border border-red-300 text-red-700 hover:bg-red-100 rounded-md text-[10px] font-bold transition-all">
                                                     Gagal Interview
+                                                </button>
+                                                <button type="button" wire:click="$set('rejectReason', 'Terima kasih atas partisipasi Anda. Berdasarkan hasil evaluasi lanjutan dan MCU, dengan berat hati kami belum dapat melanjutkan proses rekrutmen Anda.')" 
+                                                    class="px-2.5 py-1 bg-white border border-red-300 text-red-700 hover:bg-red-100 rounded-md text-[10px] font-bold transition-all">
+                                                    Gagal MCU
                                                 </button>
                                             </div>
                                         </div>
